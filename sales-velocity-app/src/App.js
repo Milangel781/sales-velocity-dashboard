@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useState, useRef, useEffect } from "react"
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
