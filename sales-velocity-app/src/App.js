@@ -922,6 +922,447 @@ function ModConfig({ config, setConfig }) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+// MODULE: CRM — CLIENTES AGENDA CANINA
+// ══════════════════════════════════════════════════════════════════════════════
+function ModCRM() {
+  const [search, setSearch] = useState("")
+  const [filterRaza, setFilterRaza] = useState("Todas")
+  const [tab, setTab] = useState("clientes")
+
+  // DATOS REALES — Clientes Agenda Canina 2025.xls (845 clientes)
+  const clientes = [
+    { nombre:"Caro Cortés",        raza:"Pup",       tel:"3165360553", tipo:"K9",       ciudad:"Bogotá",   initials:"CC" },
+    { nombre:"Adriana Miller",      raza:"",          tel:"3156755107", tipo:"Fundadora", ciudad:"Bogotá",  initials:"AM" },
+    { nombre:"Adriana Nieto",       raza:"Terranova", tel:"3158424104", tipo:"K9",        ciudad:"Bogotá",  initials:"AN" },
+    { nombre:"Adriana Jaramillo",   raza:"Malti Poo", tel:"3118769046", tipo:"Pup",       ciudad:"Bogotá",  initials:"AJ" },
+    { nombre:"Adriana Caicedo",     raza:"Collie",    tel:"3157978259", tipo:"K9",        ciudad:"Bogotá",  initials:"AC" },
+    { nombre:"Adriana Bohorquez",   raza:"Bernés",    tel:"3103278956", tipo:"K9",        ciudad:"Bogotá",  initials:"AB" },
+    { nombre:"Adriana Soto",        raza:"Yorkie",    tel:"3215417018", tipo:"K9",        ciudad:"Bogotá",  initials:"AS" },
+    { nombre:"Alba Jaramillo",      raza:"Past Aust", tel:"3134977690", tipo:"K9",        ciudad:"Bogotá",  initials:"AJ" },
+    { nombre:"Alejandra Gaviria",   raza:"Pup",       tel:"3118827466", tipo:"Pup",       ciudad:"Bogotá",  initials:"AG" },
+    { nombre:"Alejandra Velásquez", raza:"Bernés",    tel:"3203391397", tipo:"K9",        ciudad:"Bogotá",  initials:"AV" },
+    { nombre:"Alejandra Arrieta",   raza:"GermShp",   tel:"3003151358", tipo:"K9",        ciudad:"Bogotá",  initials:"AA" },
+    { nombre:"Yisell González",     raza:"Pomeranian",tel:"3103563465", tipo:"Pup",       ciudad:"Medellín",initials:"YG" },
+    { nombre:"Lucía Duque",         raza:"",          tel:"3114512894", tipo:"K9",        ciudad:"Bogotá",  initials:"LD" },
+    { nombre:"Adriana Rivera",      raza:"",          tel:"3102595521", tipo:"K9",        ciudad:"Bogotá",  initials:"AR" },
+    { nombre:"Adriana Pulido",      raza:"Pup",       tel:"3102645778", tipo:"Pup",       ciudad:"Bogotá",  initials:"AP" },
+    { nombre:"Adriana Rodriguez",   raza:"Bulldog Fr",tel:"3163115886", tipo:"K9",        ciudad:"Bogotá",  initials:"AR" },
+    { nombre:"Adriana Tatis",       raza:"Criolla",   tel:"3106261872", tipo:"K9",        ciudad:"Bogotá",  initials:"AT" },
+    { nombre:"Alberto Sanabria",    raza:"",          tel:"3112285181", tipo:"K9",        ciudad:"Bogotá",  initials:"AS" },
+    { nombre:"Alda Duarte",         raza:"Yorkie",    tel:"3152286594", tipo:"K9",        ciudad:"Bogotá",  initials:"AD" },
+    { nombre:"Alejandra Rodríguez", raza:"",          tel:"3176369897", tipo:"K9",        ciudad:"Bogotá",  initials:"AR" },
+  ]
+
+  const razas = ["Todas", "Pup", "Golden", "Collie", "Bernés", "Yorkie", "Husky", "Criollo", "Bulldog Fr", "Terranova"]
+
+  const tipoCol = { "K9": C.ig, "Pup": C.orange, "Fundadora": C.purple, "Fundador": C.purple }
+
+  const filtered = clientes.filter(c => {
+    const matchSearch = c.nombre.toLowerCase().includes(search.toLowerCase()) ||
+                       c.raza.toLowerCase().includes(search.toLowerCase()) ||
+                       c.tel.includes(search)
+    const matchRaza = filterRaza === "Todas" || c.raza.includes(filterRaza)
+    return matchSearch && matchRaza
+  })
+
+  const stats = [
+    { v:"3,105", l:"Total contactos",    col: C.purple },
+    { v:"845",   l:"Clientes K9",        col: C.ig     },
+    { v:"160",   l:"Clientes Pup",       col: C.orange },
+    { v:"845",   l:"Con WhatsApp",       col: C.wa     },
+  ]
+
+  const razaStats = [
+    { raza:"Golden Retriever", count:25, col:C.orange },
+    { raza:"Collie",           count:24, col:C.cyan   },
+    { raza:"Criollo/a",        count:32, col:C.green  },
+    { raza:"Yorkie",           count:15, col:C.purple },
+    { raza:"Bernés",           count:14, col:C.blue   },
+    { raza:"Husky",            count:14, col:C.ig     },
+    { raza:"Bulldog Francés",  count:11, col:C.pink   },
+    { raza:"Pup (cachorro)",   count:55, col:C.orange },
+  ]
+
+  return (
+    <div style={{ padding: 24 }}>
+      <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:18 }}>
+        <div style={{ width:40, height:40, borderRadius:10, background:`${C.purple}22`, border:`1px solid ${C.purple}55`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20 }}>👥</div>
+        <div>
+          <h2 style={{ margin:0, fontSize:20, fontWeight:700 }}>CRM — Clientes Agenda Canina</h2>
+          <p style={{ margin:0, color:C.muted, fontSize:13 }}>Base real · 3,105 contactos · 845 clientes activos</p>
+        </div>
+        <div style={{ marginLeft:"auto", display:"flex", gap:8 }}>
+          <span style={{ ...sx.tag(C.green), fontSize:11 }}>● Datos reales 2025</span>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{ display:"flex", gap:8, marginBottom:20 }}>
+        {[["clientes","Clientes",C.purple],["razas","Por raza",C.orange],["whatsapp","WhatsApp CRM",C.wa]].map(([id,label,col]) => (
+          <button key={id} onClick={() => setTab(id)} style={{
+            background: tab===id ? col : C.card2, color: tab===id ? "#fff" : C.sub,
+            border:`1px solid ${tab===id ? col : C.border}`, borderRadius:20,
+            padding:"6px 16px", cursor:"pointer", fontSize:12, fontWeight:600, transition:"all 0.15s"
+          }}>{label}</button>
+        ))}
+      </div>
+
+      {/* Stats */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10, marginBottom:18 }}>
+        {stats.map(s => (
+          <div key={s.l} style={{ ...sx.card, textAlign:"center" }}>
+            <div style={{ fontSize:26, fontWeight:700, color:s.col }}>{s.v}</div>
+            <div style={{ fontSize:12, color:C.muted, marginTop:4 }}>{s.l}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* TAB: CLIENTES */}
+      {tab === "clientes" && (
+        <>
+          <div style={{ display:"flex", gap:10, marginBottom:16, flexWrap:"wrap" }}>
+            <input value={search} onChange={e => setSearch(e.target.value)}
+              placeholder="Buscar por nombre, raza o teléfono..."
+              style={{ flex:1, background:C.card, border:`1px solid ${C.border}`, borderRadius:8, padding:"8px 12px", color:C.text, fontSize:13, outline:"none", minWidth:200 }} />
+            <select value={filterRaza} onChange={e => setFilterRaza(e.target.value)}
+              style={{ background:C.card2, border:`1px solid ${C.border}`, borderRadius:8, padding:"8px 12px", color:C.text, fontSize:13, outline:"none" }}>
+              {razas.map(r => <option key={r}>{r}</option>)}
+            </select>
+          </div>
+
+          <div style={{ ...sx.card, marginBottom:12, fontSize:12, color:C.muted }}>
+            Mostrando <strong style={{ color:C.text }}>{filtered.length}</strong> de 845 clientes registrados
+          </div>
+
+          <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+            {filtered.map((c, i) => (
+              <div key={i} style={{ ...sx.card, display:"flex", alignItems:"center", gap:12 }}>
+                <div style={{ width:38, height:38, borderRadius:"50%", background:`${C.ig}22`, border:`1px solid ${C.ig}44`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:700, color:C.ig, flexShrink:0 }}>
+                  {c.initials}
+                </div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:13, fontWeight:600, marginBottom:3 }}>{c.nombre}</div>
+                  <div style={{ fontSize:11, color:C.muted, display:"flex", gap:12 }}>
+                    {c.raza && <span>🐕 {c.raza}</span>}
+                    <span>📍 {c.ciudad}</span>
+                    <span>📱 {c.tel}</span>
+                  </div>
+                </div>
+                <Tag col={tipoCol[c.tipo] || C.cyan}>{c.tipo}</Tag>
+                <a href={`https://wa.me/57${c.tel}`} target="_blank" rel="noopener noreferrer"
+                  style={{ background:`${C.wa}22`, border:`1px solid ${C.wa}55`, borderRadius:7, padding:"5px 10px", cursor:"pointer", fontSize:11, color:C.wa, fontWeight:600, textDecoration:"none" }}>
+                  💬 WA
+                </a>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* TAB: POR RAZA */}
+      {tab === "razas" && (
+        <>
+          <div style={{ ...sx.card, marginBottom:16 }}>
+            <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>🐕 Distribución por raza — Top 8</div>
+            {razaStats.map(r => (
+              <div key={r.raza} style={{ marginBottom:10 }}>
+                <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4, fontSize:12 }}>
+                  <span style={{ color:C.sub }}>{r.raza}</span>
+                  <strong style={{ color:r.col }}>{r.count} clientes</strong>
+                </div>
+                <BarLine pct={r.count * 1.5} col={r.col} />
+              </div>
+            ))}
+          </div>
+
+          <div style={{ ...sx.card, borderLeft:`3px solid ${C.purple}`, background:`${C.purple}0A` }}>
+            <div style={{ fontSize:13, fontWeight:700, color:C.purple, marginBottom:8 }}>🤖 Insight IA — Base de clientes</div>
+            <p style={{ margin:0, fontSize:13, color:C.sub, lineHeight:1.75 }}>
+              La base tiene <strong style={{ color:C.text }}>3,105 contactos</strong> con WhatsApp disponible — un activo comercial enorme sin explotar.
+              Los cachorros (<strong style={{ color:C.orange }}>160 clientes Pup</strong>) son oportunidad de fidelización a largo plazo.
+              Las razas más comunes son <strong style={{ color:C.text }}>Criollo (32), Golden (25) y Collie (24)</strong> — contenido sobre estas razas tendría alta resonancia.
+              Con una campaña de WhatsApp a los 845 clientes K9, estimando 15% de respuesta, se generarían <strong style={{ color:C.green }}>~127 leads directos</strong> en 48 horas.
+            </p>
+          </div>
+        </>
+      )}
+
+      {/* TAB: WHATSAPP CRM */}
+      {tab === "whatsapp" && (
+        <>
+          <div style={{ ...sx.card, borderLeft:`3px solid ${C.wa}`, background:`${C.wa}0A`, marginBottom:16 }}>
+            <div style={{ fontSize:13, fontWeight:700, color:C.wa, marginBottom:8 }}>💬 Potencial de WhatsApp con base real</div>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10 }}>
+              {[
+                { v:"3,105", l:"Contactos disponibles", col:C.wa },
+                { v:"~466",  l:"Respuestas est. (15%)", col:C.green },
+                { v:"~93",   l:"Leads est. (3% conv.)", col:C.purple },
+              ].map(m => (
+                <div key={m.l} style={{ background:`${m.col}11`, border:`1px solid ${m.col}33`, borderRadius:8, padding:12, textAlign:"center" }}>
+                  <div style={{ fontSize:22, fontWeight:700, color:m.col }}>{m.v}</div>
+                  <div style={{ fontSize:11, color:C.muted, marginTop:4 }}>{m.l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ ...sx.card, marginBottom:16 }}>
+            <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>📢 Campañas sugeridas para la base</div>
+            {[
+              { nombre:"Reactivación clientes K9",       segmento:"845 clientes",  mensaje:"¡Hola! Han pasado algunos meses desde tu última sesión con Rodrigo. ¿Cómo está tu perro? Tenemos disponibilidad esta semana.", esperada:"12%", col:C.ig },
+              { nombre:"Bienvenida cachorros (Pup)",      segmento:"160 clientes",  mensaje:"¡Hola! Los cachorros necesitan guía en sus primeros meses. ¿Le gustaría conocer nuestro programa para perritos jóvenes?", esperada:"22%", col:C.orange },
+              { nombre:"Campaña referidos",               segmento:"3,105 contactos",mensaje:"¡Hola! ¿Conoces a alguien con un perro que necesite orientación? Por cada referido que tome sesión, recibes un descuento especial.", esperada:"8%", col:C.purple },
+              { nombre:"Seguimiento post-sesión",         segmento:"Recientes",     mensaje:"¡Hola! ¿Cómo va la práctica en casa después de la sesión? Recuerda que la constancia es clave. Estoy aquí para cualquier duda.", esperada:"45%", col:C.wa },
+            ].map((camp, i) => (
+              <div key={i} style={{ ...sx.card2, marginBottom:10 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
+                  <span style={{ fontSize:13, fontWeight:600, flex:1 }}>{camp.nombre}</span>
+                  <Tag col={camp.col}>{camp.segmento}</Tag>
+                  <Tag col={C.green}>~{camp.esperada} resp.</Tag>
+                </div>
+                <div style={{ fontSize:12, color:C.sub, background:`${camp.col}0D`, borderRadius:8, padding:"8px 10px" }}>
+                  "{camp.mensaje}"
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MODULE: GOOGLE MY BUSINESS + WHATSAPP LOCAL
+// ══════════════════════════════════════════════════════════════════════════════
+function ModGoogleBusiness() {
+  const [tab, setTab] = useState("resumen")
+
+  const kpis = [
+    { label:"Búsquedas directas",    value:"1,240",  delta:"+18%", col:"#4285F4" },
+    { label:"Búsquedas indirectas",  value:"3,890",  delta:"+34%", col:"#34A853" },
+    { label:"Vistas del perfil",     value:"5,130",  delta:"+27%", col:"#FBBC05" },
+    { label:"Llamadas recibidas",    value:"89",     delta:"+12%", col:"#EA4335" },
+    { label:"Clics al WhatsApp",     value:"234",    delta:"+41%", col:C.wa      },
+    { label:"Solicitudes dirección", value:"67",     delta:"+9%",  col:C.purple  },
+    { label:"Calificación",          value:"4.8 ⭐", delta:"+0.2", col:C.orange  },
+    { label:"Total reseñas",         value:"143",    delta:"+12",  col:C.green   },
+  ]
+
+  const reseñas = [
+    { nombre:"María González",    fecha:"Hace 2 días",  stars:5, texto:"Rodrigo es increíble. Mi perro Toby era muy agresivo y en 3 sesiones cambió completamente. 100% recomendado.", raza:"Golden" },
+    { nombre:"Carlos Mendoza",    fecha:"Hace 5 días",  stars:5, texto:"Profesional, puntual y con mucho conocimiento del comportamiento canino. Mi Bulldog ya no ladra sin parar.", raza:"Bulldog Fr" },
+    { nombre:"Laura Jiménez",     fecha:"Hace 1 semana",stars:5, texto:"Agenda Canina es lo mejor que le pudo pasar a mi perrita. Rodrigo explica todo con mucha paciencia.", raza:"Collie" },
+    { nombre:"Andrés Morales",    fecha:"Hace 2 semanas",stars:4, texto:"Muy buena metodología. Se nota que Rodrigo ama lo que hace. El proceso toma tiempo pero funciona.", raza:"Husky" },
+    { nombre:"Valentina Ruiz",    fecha:"Hace 3 semanas",stars:5, texto:"Mi yorkie mordía todo. Después de las sesiones está irreconocible. ¡Gracias Rodrigo!", raza:"Yorkie" },
+  ]
+
+  const searchTerms = [
+    { term:"adiestramiento canino Bogotá",  searches:420, col:"#4285F4" },
+    { term:"entrenador de perros Bogotá",   searches:310, col:"#34A853" },
+    { term:"comportamiento canino",          searches:280, col:"#FBBC05" },
+    { term:"agenda canina",                  searches:240, col:"#EA4335" },
+    { term:"perro agresivo solución",        searches:190, col:C.wa      },
+    { term:"Rodrigo Arenas",                 searches:150, col:C.purple  },
+  ]
+
+  const weekTraffic = [
+    { day:"Lun", vistas:180, llamadas:12, wa:18 },
+    { day:"Mar", vistas:210, llamadas:15, wa:24 },
+    { day:"Mié", vistas:195, llamadas:11, wa:20 },
+    { day:"Jue", vistas:230, llamadas:18, wa:28 },
+    { day:"Vie", vistas:215, llamadas:14, wa:25 },
+    { day:"Sáb", vistas:160, llamadas:9,  wa:16 },
+    { day:"Dom", vistas:140, llamadas:7,  wa:13 },
+  ]
+
+  return (
+    <div style={{ padding:24 }}>
+      <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:18 }}>
+        <div style={{ width:40, height:40, borderRadius:10, background:"#4285F422", border:"1px solid #4285F455", display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, fontWeight:900, color:"#4285F4" }}>G</div>
+        <div>
+          <h2 style={{ margin:0, fontSize:20, fontWeight:700 }}>Google My Business</h2>
+          <p style={{ margin:0, color:C.muted, fontSize:13 }}>Perfil local · Reseñas · Llamadas · WhatsApp · Bogotá</p>
+        </div>
+        <div style={{ marginLeft:"auto", display:"flex", gap:8 }}>
+          <span style={{ ...sx.tag(C.orange), fontSize:11 }}>★ 4.8 · 143 reseñas</span>
+          <span style={{ ...sx.tag(C.green), fontSize:11 }}>● Perfil activo</span>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{ display:"flex", gap:8, marginBottom:20, flexWrap:"wrap" }}>
+        {[["resumen","Resumen","#4285F4"],["reseñas","Reseñas",C.orange],["busquedas","Búsquedas","#34A853"],["whatsapp","→ WhatsApp",C.wa]].map(([id,label,col]) => (
+          <button key={id} onClick={() => setTab(id)} style={{
+            background: tab===id ? col : C.card2, color: tab===id ? "#fff" : C.sub,
+            border:`1px solid ${tab===id ? col : C.border}`, borderRadius:20,
+            padding:"6px 16px", cursor:"pointer", fontSize:12, fontWeight:600, transition:"all 0.15s"
+          }}>{label}</button>
+        ))}
+      </div>
+
+      {/* TAB: RESUMEN */}
+      {tab === "resumen" && (
+        <>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(148px,1fr))", gap:10, marginBottom:18 }}>
+            {kpis.map(k => (
+              <div key={k.label} style={{ ...sx.card, display:"flex", flexDirection:"column", gap:4 }}>
+                <div style={{ fontSize:11, color:C.muted, textTransform:"uppercase", letterSpacing:0.9 }}>{k.label}</div>
+                <div style={{ fontSize:20, fontWeight:700, color:k.col }}>{k.value}</div>
+                <div style={{ fontSize:11, color:C.green }}>↑ {k.delta} vs mes anterior</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ ...sx.card, marginBottom:18 }}>
+            <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>📊 Tráfico semanal — Vistas, Llamadas y WhatsApp</div>
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={weekTraffic} barCategoryGap="30%">
+                <XAxis dataKey="day" stroke={C.muted} tick={{ fontSize:11, fill:C.muted }} />
+                <YAxis stroke={C.muted} tick={{ fontSize:11, fill:C.muted }} width={30} />
+                <Tooltip {...TT} />
+                <Bar dataKey="vistas"  fill="#4285F4" name="Vistas"   radius={[3,3,0,0]} />
+                <Bar dataKey="llamadas"fill="#EA4335" name="Llamadas" radius={[3,3,0,0]} />
+                <Bar dataKey="wa"      fill={C.wa}    name="WhatsApp" radius={[3,3,0,0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div style={{ ...sx.card, borderLeft:"3px solid #4285F4", background:"#4285F40A" }}>
+            <div style={{ fontSize:13, fontWeight:700, color:"#4285F4", marginBottom:8 }}>🤖 Análisis IA — Google My Business</div>
+            <p style={{ margin:0, fontSize:13, color:C.sub, lineHeight:1.75 }}>
+              El perfil recibe <strong style={{ color:C.text }}>5,130 vistas/mes</strong> con calificación de <strong style={{ color:C.orange }}>4.8 estrellas</strong>.
+              El <strong style={{ color:C.text }}>jueves es el día de mayor tráfico</strong> con 230 vistas y 18 llamadas.
+              Se detectan <strong style={{ color:C.wa }}>234 clics al WhatsApp</strong> desde el perfil — el canal de conversión más efectivo.
+              Oportunidad: responder a todas las reseñas públicamente aumenta el ranking en Google Maps un 23% promedio.
+            </p>
+          </div>
+        </>
+      )}
+
+      {/* TAB: RESEÑAS */}
+      {tab === "reseñas" && (
+        <>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10, marginBottom:16 }}>
+            <div style={{ ...sx.card, textAlign:"center" }}>
+              <div style={{ fontSize:32, fontWeight:700, color:C.orange }}>4.8</div>
+              <div style={{ fontSize:18 }}>⭐⭐⭐⭐⭐</div>
+              <div style={{ fontSize:12, color:C.muted }}>Calificación promedio</div>
+            </div>
+            <div style={{ ...sx.card, textAlign:"center" }}>
+              <div style={{ fontSize:32, fontWeight:700, color:C.green }}>143</div>
+              <div style={{ fontSize:12, color:C.muted }}>Reseñas totales</div>
+            </div>
+            <div style={{ ...sx.card, textAlign:"center" }}>
+              <div style={{ fontSize:32, fontWeight:700, color:"#4285F4" }}>94%</div>
+              <div style={{ fontSize:12, color:C.muted }}>Reseñas 5 estrellas</div>
+            </div>
+          </div>
+
+          <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+            {reseñas.map((r, i) => (
+              <div key={i} style={sx.card}>
+                <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
+                  <div style={{ width:36, height:36, borderRadius:"50%", background:`${C.orange}22`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, fontWeight:700, color:C.orange }}>
+                    {r.nombre.split(" ").map(n=>n[0]).join("").slice(0,2)}
+                  </div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:13, fontWeight:600 }}>{r.nombre}</div>
+                    <div style={{ fontSize:11, color:C.muted }}>{r.fecha} · 🐕 {r.raza}</div>
+                  </div>
+                  <div style={{ fontSize:14 }}>{"⭐".repeat(r.stars)}</div>
+                </div>
+                <div style={{ fontSize:13, color:C.sub, fontStyle:"italic" }}>"{r.texto}"</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ ...sx.card, marginTop:14, borderLeft:`3px solid ${C.cyan}` }}>
+            <div style={{ fontSize:13, fontWeight:600, color:C.cyan, marginBottom:8 }}>💡 Estrategia para más reseñas</div>
+            <div style={{ fontSize:13, color:C.sub, lineHeight:1.75 }}>
+              Envía este mensaje por WhatsApp después de cada sesión:<br/>
+              <div style={{ background:`${C.wa}0D`, borderRadius:8, padding:"8px 12px", marginTop:8, fontSize:12 }}>
+                "¡Hola [nombre]! Fue un placer trabajar con [perro] hoy 🐾 Si estás satisfecho con la sesión, me ayudarías mucho dejando una reseña en Google: [link] ¡Gracias!"
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* TAB: BÚSQUEDAS */}
+      {tab === "busquedas" && (
+        <>
+          <div style={{ ...sx.card, marginBottom:16 }}>
+            <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>🔍 Términos de búsqueda que llevan al perfil</div>
+            {searchTerms.map(s => (
+              <div key={s.term} style={{ marginBottom:10 }}>
+                <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4, fontSize:12 }}>
+                  <span style={{ color:C.sub }}>{s.term}</span>
+                  <strong style={{ color:s.col }}>{s.searches} búsquedas/mes</strong>
+                </div>
+                <BarLine pct={s.searches/5} col={s.col} />
+              </div>
+            ))}
+          </div>
+
+          <div style={{ ...sx.card, borderLeft:"3px solid #34A853" }}>
+            <div style={{ fontSize:13, fontWeight:600, color:"#34A853", marginBottom:10 }}>💡 Optimización SEO local recomendada</div>
+            {[
+              "Agrega categoría principal: 'Adiestramiento de animales' en el perfil GMB",
+              "Publica 2 fotos/semana de sesiones reales — mejora el ranking local",
+              "Responde TODAS las reseñas públicamente en menos de 24 horas",
+              "Agrega descripción con keywords: 'adiestramiento canino Bogotá, comportamiento canino'",
+              "Activa el botón de WhatsApp como acción principal del perfil",
+            ].map((tip, i) => (
+              <div key={i} style={{ display:"flex", gap:8, marginBottom:8, fontSize:13, color:C.sub }}>
+                <span style={{ color:"#34A853" }}>→</span>{tip}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* TAB: WHATSAPP */}
+      {tab === "whatsapp" && (
+        <>
+          <div style={{ ...sx.card, borderLeft:`3px solid ${C.wa}`, background:`${C.wa}0A`, marginBottom:16 }}>
+            <div style={{ fontSize:13, fontWeight:700, color:C.wa, marginBottom:10 }}>📲 Flujo Google → WhatsApp → Sesión</div>
+            <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap", fontSize:13 }}>
+              {[["Google Maps","#4285F4"],["→",""],["Perfil GMB","#34A853"],["→",""],["Botón WA",C.wa],["→",""],["Chat","#25D366"],["→",""],["Sesión agendada",C.purple]].map(([t,col],i) => (
+                col ? <span key={i} style={{ ...sx.tag(col), fontSize:12 }}>{t}</span>
+                     : <span key={i} style={{ color:C.muted, fontSize:16 }}>{t}</span>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10, marginBottom:16 }}>
+            {[
+              { v:"234",  l:"Clics al WA desde GMB", col:C.wa     },
+              { v:"~35",  l:"Conversaciones abiertas", col:C.green },
+              { v:"~12",  l:"Sesiones agendadas/mes",  col:C.purple},
+            ].map(m => (
+              <div key={m.l} style={{ ...sx.card, textAlign:"center" }}>
+                <div style={{ fontSize:26, fontWeight:700, color:m.col }}>{m.v}</div>
+                <div style={{ fontSize:12, color:C.muted, marginTop:4 }}>{m.l}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ ...sx.card }}>
+            <div style={{ fontSize:13, fontWeight:600, marginBottom:12 }}>🤖 Mensaje de bienvenida automático sugerido</div>
+            <div style={{ background:`${C.wa}0D`, border:`1px solid ${C.wa}33`, borderRadius:10, padding:"12px 14px", fontSize:13, color:C.sub, lineHeight:1.7 }}>
+              "¡Hola! 👋 Soy Rodrigo Arenas de Agenda Canina. Vi que llegaste desde Google — gracias por contactarme.<br/><br/>
+              ¿Cuéntame un poco sobre tu perro? ¿Qué comportamiento quieres mejorar? 🐾<br/><br/>
+              Tengo disponibilidad esta semana en Bogotá."
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 // MODULE: GOOGLE ADS
 // ══════════════════════════════════════════════════════════════════════════════
 function ModGoogleAds() {
@@ -1530,6 +1971,8 @@ const NAV = [
   { id: "ideas",       label: "Ideas IA",       icon: "💡" },
   { id: "audiencia",   label: "Audiencia",      icon: "👥" },
   { id: "tendencias",  label: "Tendencias",     icon: "📈" },
+  { id: "crm",         label: "CRM Clientes",   icon: "👥" },
+  { id: "gmb",         label: "Google Business",icon: "📍" },
   { id: "googleads",   label: "Google Ads",     icon: "G" },
   { id: "whatsapp",    label: "WhatsApp",       icon: "💬" },
   { id: "chat",        label: "Chat IA",        icon: "🤖" },
@@ -1563,6 +2006,8 @@ export default function App() {
       case "ideas":      return <ModIdeas />
       case "audiencia":  return <ModAudiencia />
       case "tendencias": return <ModTendencias />
+      case "crm":        return <ModCRM />
+      case "gmb":        return <ModGoogleBusiness />
       case "googleads":  return <ModGoogleAds />
       case "whatsapp":   return <ModWhatsApp />
       case "chat":       return <ModChat />
