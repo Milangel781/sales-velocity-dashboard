@@ -3278,7 +3278,7 @@ Para cada recomendación usa este formato JSON exacto (responde SOLO el JSON, si
             <div style={{ fontSize:13, fontWeight:700, color:C.purple, marginBottom:4 }}>¿Quieres implementar estas recomendaciones con acompañamiento?</div>
             <div style={{ fontSize:12, color:C.muted }}>Sales Velocity AI ofrece planes desde $150/mes con dashboard, análisis mensual y estrategia personalizada.</div>
           </div>
-          <a href="https://wa.me/573142452458?text=Hola%2C%20completé%20el%20diagnóstico%20de%20Sales%20Velocity%20AI%20y%20quiero%20saber%20más"
+          <a href="https://wa.me/525619880362?text=Hola%2C%20completé%20el%20diagnóstico%20de%20Sales%20Velocity%20AI%20y%20quiero%20saber%20más"
             target="_blank" rel="noopener noreferrer"
             style={{ background:C.wa, border:"none", borderRadius:10, padding:"10px 20px", cursor:"pointer", color:"#fff", fontSize:13, fontWeight:700, textDecoration:"none", whiteSpace:"nowrap", flexShrink:0 }}>
             💬 Hablar con un asesor
