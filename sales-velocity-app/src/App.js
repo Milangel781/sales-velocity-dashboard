@@ -3071,19 +3071,245 @@ function ModWhatsApp() {
 // ══════════════════════════════════════════════════════════════════════════════
 // SIDEBAR NAV
 // ══════════════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
+// MODULE: REPORTE MENSUAL
+// ══════════════════════════════════════════════════════════════════════════════
+function ModReporte({ config = {} }) {
+  const [periodo, setPeriodo] = useState("Mayo–Junio 2026")
+  const [generating, setGenerating] = useState(false)
+  const [resumenIA, setResumenIA] = useState("")
+  const hasRealAI = config.anthropicKey && config.anthropicKey.startsWith("sk-ant-")
+
+  const kpis = [
+    { label:"Seguidores",        value:"4,538",  prev:"4,490", delta:"+48",    col:C.purple, icon:"👥" },
+    { label:"Visualizaciones",   value:"26,423", prev:"18,200",delta:"+45.2%", col:C.cyan,   icon:"👁"  },
+    { label:"Interacciones",     value:"1,015",  prev:"680",   delta:"+49.3%", col:C.pink,   icon:"♥"  },
+    { label:"Alcance",           value:"5,760",  prev:"3,900", delta:"+47.7%", col:C.orange, icon:"📡" },
+    { label:"Engagement Rate",   value:"3.85%",  prev:"2.90%", delta:"+0.95pp",col:C.green,  icon:"📈" },
+    { label:"Visitas al perfil", value:"355",    prev:"210",   delta:"+69%",   col:C.blue,   icon:"🔖" },
+    { label:"Clics a WhatsApp",  value:"15",     prev:"8",     delta:"+87.5%", col:C.wa,     icon:"💬" },
+    { label:"Posts publicados",  value:"6",      prev:"4",     delta:"+2",     col:C.sub,    icon:"📝" },
+  ]
+
+  const topPosts = [
+    { pos:1, title:"El perro muerde cuando el humano se mueve mal", tipo:"Reel", views:4713, likes:102, score:8.7, col:C.ig, takeaway:"Contenido de EDUCACIÓN + SEGURIDAD = mayor tracción" },
+    { pos:2, title:"Los perros no se educan solos", tipo:"Reel", views:2506, likes:74, score:8.4, col:C.purple, takeaway:"Mensaje de RESPONSABILIDAD resuena con la audiencia" },
+    { pos:3, title:"Sitios Pet Friendly en calma", tipo:"Reel", views:1511, likes:33, score:8.1, col:C.cyan, takeaway:"Contenido LIFESTYLE canino genera buen alcance" },
+  ]
+
+  const recomendaciones = [
+    { num:"01", titulo:"Duplicar reels educativos de seguridad", desc:"Los reels sobre mordidas, límites y señales caninas obtienen 3x más vistas. Meta: 2 reels/semana de este formato.", prioridad:"Alta", col:C.red },
+    { num:"02", titulo:"Activar campaña WhatsApp a base K9", desc:"637 clientes K9 activos sin contacto reciente. Campaña de reactivación estimaría 95+ respuestas en 48h.", prioridad:"Alta", col:C.red },
+    { num:"03", titulo:"Convertir post de Xoky Meals a Reel", desc:"El post de imagen obtuvo solo 406 vistas. En formato reel con proceso de preparación proyecta 3,000+ vistas.", prioridad:"Media", col:C.orange },
+    { num:"04", titulo:"Serie de testimonios — familias reales", desc:"El post de mención especial generó buena retención. Una serie mensual de 4 testimonios construye prueba social.", prioridad:"Media", col:C.orange },
+    { num:"05", titulo:"Publicar en alianza con Amigo Leal Café", desc:"La semana con colabs (25-27 May) fue la más activa del período. Programar 2 colabs/mes.", prioridad:"Baja", col:C.cyan },
+  ]
+
+  const generateResumen = async () => {
+    if (!hasRealAI) return
+    setGenerating(true)
+    const prompt = `Genera un resumen ejecutivo mensual profesional para Agenda Canina (${periodo}).
+    Métricas clave: 4,538 seguidores (+48), 26,423 visualizaciones (+45.2%), 1,015 interacciones (+49.3%), engagement 3.85%, 15 clics a WhatsApp.
+    Top post: "El perro muerde cuando el humano se mueve mal" con 4,713 vistas.
+    Escribe 3 párrafos: (1) resultados generales del período, (2) hallazgos clave sobre el contenido, (3) oportunidades comerciales prioritarias. Tono profesional y accionable. Sin bullets, en prosa fluida.`
+    const texto = await callClaudeAPI(prompt, config.anthropicKey)
+    setResumenIA(texto)
+    setGenerating(false)
+  }
+
+  const printReport = () => {
+    const printWindow = window.open('', '_blank')
+    const html = `<!DOCTYPE html><html><head><title>Reporte Mensual — ${config.client || "Agenda Canina"} — ${periodo}</title>
+    <style>
+      * { margin:0; padding:0; box-sizing:border-box; }
+      body { font-family: 'Inter', Arial, sans-serif; color: #1a1a2e; padding: 40px; max-width: 800px; margin: 0 auto; }
+      .header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:32px; padding-bottom:20px; border-bottom:3px solid #8B5CF6; }
+      .logo { font-size:22px; font-weight:800; color:#8B5CF6; } .logo span { color:#06B6D4; }
+      .client { text-align:right; } .client h2 { font-size:18px; font-weight:700; } .client p { color:#666; font-size:13px; }
+      h3 { font-size:15px; font-weight:700; color:#1a1a2e; margin:24px 0 12px; border-left:3px solid #8B5CF6; padding-left:10px; }
+      .kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px; }
+      .kpi { background:#f8f7ff; border:1px solid #e5e0ff; border-radius:8px; padding:12px; text-align:center; }
+      .kpi-val { font-size:22px; font-weight:700; color:#8B5CF6; } .kpi-delta { font-size:11px; color:#10B981; font-weight:600; margin-top:2px; }
+      .kpi-label { font-size:11px; color:#666; margin-top:4px; }
+      .post { background:#f8f7ff; border:1px solid #e5e0ff; border-radius:8px; padding:12px; margin-bottom:8px; display:flex; gap:12px; align-items:center; }
+      .post-num { font-size:20px; font-weight:800; color:#8B5CF6; min-width:28px; }
+      .post-title { font-size:13px; font-weight:600; }
+      .post-meta { font-size:11px; color:#666; margin-top:3px; }
+      .rec { border-left:3px solid #8B5CF6; padding:10px 14px; background:#f8f7ff; margin-bottom:8px; border-radius:0 8px 8px 0; }
+      .rec-num { font-size:10px; color:#8B5CF6; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
+      .rec-title { font-size:13px; font-weight:700; margin:2px 0; }
+      .rec-desc { font-size:12px; color:#555; line-height:1.6; }
+      .summary { background:#f0f4ff; border-radius:10px; padding:20px; margin-bottom:24px; line-height:1.8; font-size:13px; color:#333; }
+      .footer { margin-top:40px; padding-top:16px; border-top:1px solid #eee; display:flex; justify-content:space-between; font-size:11px; color:#999; }
+      @media print { body { padding:20px; } }
+    </style></head><body>
+    <div class="header">
+      <div><div class="logo">Sales Velocity <span>AI</span></div><div style="font-size:12px;color:#666;margin-top:4px">Dashboard de Inteligencia Comercial</div></div>
+      <div class="client"><h2>${config.client || "Agenda Canina"}</h2><p>${config.industry || "Comportamiento Canino"} · ${config.country || "Colombia"}</p><p style="margin-top:4px;font-weight:600;color:#8B5CF6">Período: ${periodo}</p></div>
+    </div>
+    ${resumenIA ? `<h3>📝 Resumen Ejecutivo</h3><div class="summary">${resumenIA.replace(/\n/g,'<br/>')}</div>` : ''}
+    <h3>📊 KPIs del Período</h3>
+    <div class="kpis">
+      ${kpis.map(k=>`<div class="kpi"><div class="kpi-val">${k.value}</div><div class="kpi-delta">${k.delta}</div><div class="kpi-label">${k.label}</div></div>`).join('')}
+    </div>
+    <h3>🏆 Top 3 Posts del Período</h3>
+    ${topPosts.map(p=>`<div class="post"><div class="post-num">#${p.pos}</div><div><div class="post-title">${p.title}</div><div class="post-meta">${p.tipo} · ${p.views.toLocaleString()} vistas · ${p.likes} likes · Score ${p.score}/10</div><div class="post-meta" style="color:#8B5CF6;margin-top:3px">💡 ${p.takeaway}</div></div></div>`).join('')}
+    <h3>🎯 Recomendaciones para el Próximo Mes</h3>
+    ${recomendaciones.map(r=>`<div class="rec"><div class="rec-num">${r.num} · Prioridad ${r.prioridad}</div><div class="rec-title">${r.titulo}</div><div class="rec-desc">${r.desc}</div></div>`).join('')}
+    <div class="footer"><span>Generado por Sales Velocity AI · salesvelocityai.com</span><span>Confidencial — ${config.client || "Agenda Canina"} · ${new Date().toLocaleDateString('es-CO')}</span></div>
+    </body></html>`
+    printWindow.document.write(html)
+    printWindow.document.close()
+    printWindow.print()
+  }
+
+  return (
+    <div style={{ padding:24 }}>
+      {/* Header */}
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:20 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+          <div style={{ width:42, height:42, borderRadius:10, background:`${C.purple}22`, border:`1px solid ${C.purple}55`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>📊</div>
+          <div>
+            <h2 style={{ margin:0, fontSize:20, fontWeight:700 }}>Reporte Mensual</h2>
+            <p style={{ margin:0, color:C.muted, fontSize:13 }}>Entregable profesional para {config.client || "Agenda Canina"}</p>
+          </div>
+        </div>
+        <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+          <select value={periodo} onChange={e => setPeriodo(e.target.value)}
+            style={{ background:C.card2, border:`1px solid ${C.border}`, borderRadius:8, padding:"7px 12px", color:C.text, fontSize:13, outline:"none" }}>
+            {["Mayo–Junio 2026","Abril–Mayo 2026","Marzo–Abril 2026"].map(p => <option key={p}>{p}</option>)}
+          </select>
+          {hasRealAI && (
+            <button onClick={generateResumen} disabled={generating} style={{ background:generating ? C.card2 : C.purple, border:"none", borderRadius:8, padding:"7px 16px", cursor:generating ? "default" : "pointer", color:"#fff", fontSize:13, fontWeight:600 }}>
+              {generating ? "✨ Generando..." : "✨ Generar con IA"}
+            </button>
+          )}
+          <button onClick={printReport} style={{ background:C.green, border:"none", borderRadius:8, padding:"7px 16px", cursor:"pointer", color:"#fff", fontSize:13, fontWeight:600 }}>
+            🖨️ Exportar PDF
+          </button>
+        </div>
+      </div>
+
+      {/* Resumen Ejecutivo IA */}
+      {resumenIA ? (
+        <div style={{ ...sx.card, borderLeft:`3px solid ${C.purple}`, background:`${C.purple}08`, marginBottom:16 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:10 }}>
+            <span style={{ fontSize:14 }}>📝</span>
+            <span style={{ fontSize:13, fontWeight:700, color:C.purple }}>Resumen Ejecutivo — Generado con IA</span>
+            <span style={{ ...sx.tag(C.green), fontSize:10, marginLeft:"auto" }}>🟢 Claude AI</span>
+          </div>
+          <p style={{ margin:0, fontSize:13, color:C.sub, lineHeight:1.8, whiteSpace:"pre-wrap" }}>{resumenIA}</p>
+        </div>
+      ) : !hasRealAI ? (
+        <div style={{ ...sx.card, borderLeft:`3px solid ${C.orange}`, background:`${C.orange}08`, marginBottom:16 }}>
+          <div style={{ fontSize:13, color:C.orange, fontWeight:600, marginBottom:4 }}>✨ Resumen Ejecutivo con IA</div>
+          <p style={{ margin:0, fontSize:12, color:C.muted }}>Configura tu API key de Anthropic en ⚙️ Configuración para generar automáticamente el análisis narrativo del mes.</p>
+        </div>
+      ) : (
+        <div style={{ ...sx.card, borderLeft:`3px solid ${C.purple}`, background:`${C.purple}08`, marginBottom:16 }}>
+          <div style={{ fontSize:13, color:C.purple, fontWeight:600, marginBottom:4 }}>✨ Resumen Ejecutivo listo para generar</div>
+          <p style={{ margin:0, fontSize:12, color:C.muted }}>Haz clic en "Generar con IA" para crear el análisis narrativo ejecutivo del período.</p>
+        </div>
+      )}
+
+      {/* KPIs */}
+      <div style={{ fontSize:12, color:C.muted, fontWeight:700, textTransform:"uppercase", letterSpacing:1, marginBottom:10 }}>KPIs del Período — {periodo}</div>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10, marginBottom:20 }}>
+        {kpis.map(k => (
+          <div key={k.label} style={{ ...sx.card, textAlign:"center" }}>
+            <div style={{ fontSize:16, marginBottom:4 }}>{k.icon}</div>
+            <div style={{ fontSize:20, fontWeight:700, color:k.col }}>{k.value}</div>
+            <div style={{ fontSize:11, color:C.green, fontWeight:600, marginTop:2 }}>{k.delta} vs mes ant.</div>
+            <div style={{ fontSize:11, color:C.muted, marginTop:3 }}>{k.label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:16 }}>
+        {/* Top Posts */}
+        <div style={sx.card}>
+          <div style={{ fontSize:13, fontWeight:700, marginBottom:14 }}>🏆 Top 3 Posts del Período</div>
+          {topPosts.map(p => (
+            <div key={p.pos} style={{ ...sx.card2, marginBottom:8, display:"flex", gap:10, alignItems:"flex-start" }}>
+              <div style={{ fontSize:20, fontWeight:800, color:p.col, minWidth:28 }}>#{p.pos}</div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:12, fontWeight:600, marginBottom:3, color:C.text }}>{p.title}</div>
+                <div style={{ display:"flex", gap:8, fontSize:11, color:C.muted, flexWrap:"wrap" }}>
+                  <span>👁 {p.views.toLocaleString()}</span>
+                  <span>♥ {p.likes}</span>
+                  <Tag col={p.col}>Score {p.score}</Tag>
+                </div>
+                <div style={{ fontSize:11, color:p.col, marginTop:5, fontStyle:"italic" }}>💡 {p.takeaway}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Audiencia snapshot */}
+        <div style={sx.card}>
+          <div style={{ fontSize:13, fontWeight:700, marginBottom:14 }}>👥 Audiencia — Snapshot</div>
+          {[
+            { label:"Mujeres",       val:"80%",  col:C.pink   },
+            { label:"Hombres",       val:"20%",  col:C.blue   },
+            { label:"Bogotá",        val:"50.5%",col:C.purple },
+            { label:"Edad 35–54",    val:"62.9%",col:C.orange },
+            { label:"Colombia",      val:"83.8%",col:C.green  },
+            { label:"Engagement Rate",val:"3.85%",col:C.cyan  },
+          ].map(a => (
+            <div key={a.label} style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
+              <span style={{ fontSize:12, color:C.sub, minWidth:110 }}>{a.label}</span>
+              <BarLine pct={parseFloat(a.val)} col={a.col} />
+              <span style={{ fontSize:12, fontWeight:700, color:a.col, minWidth:42, textAlign:"right" }}>{a.val}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Recomendaciones */}
+      <div style={{ ...sx.card, marginBottom:16 }}>
+        <div style={{ fontSize:13, fontWeight:700, marginBottom:14 }}>🎯 Recomendaciones — Próximo Mes</div>
+        {recomendaciones.map(r => (
+          <div key={r.num} style={{ ...sx.card2, marginBottom:8, display:"flex", gap:12, alignItems:"flex-start" }}>
+            <div style={{ background:`${r.col}22`, color:r.col, border:`1px solid ${r.col}44`, borderRadius:8, padding:"4px 8px", fontSize:12, fontWeight:800, flexShrink:0 }}>{r.num}</div>
+            <div style={{ flex:1 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:3 }}>
+                <span style={{ fontSize:13, fontWeight:700, color:C.text }}>{r.titulo}</span>
+                <Tag col={r.col}>{r.prioridad}</Tag>
+              </div>
+              <div style={{ fontSize:12, color:C.muted, lineHeight:1.6 }}>{r.desc}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer del reporte */}
+      <div style={{ ...sx.card, borderLeft:`3px solid ${C.green}`, background:`${C.green}08`, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+        <div>
+          <div style={{ fontSize:13, fontWeight:700, color:C.green, marginBottom:4 }}>✅ Reporte listo para entregar</div>
+          <div style={{ fontSize:12, color:C.muted }}>Generado por Sales Velocity AI · {new Date().toLocaleDateString('es-CO', {day:'numeric',month:'long',year:'numeric'})}</div>
+        </div>
+        <button onClick={printReport} style={{ background:C.green, border:"none", borderRadius:10, padding:"10px 22px", cursor:"pointer", color:"#fff", fontSize:13, fontWeight:700 }}>
+          🖨️ Exportar PDF
+        </button>
+      </div>
+    </div>
+  )
+}
+
 const NAV = [
-  { id: "inicio",      label: "Inicio",        icon: "🏠" },
-  { id: "posts",       label: "Posts",          icon: "📋" },
-  { id: "constancia",  label: "Constancia",     icon: "📅" },
-  { id: "ideas",       label: "Ideas IA",       icon: "💡" },
-  { id: "audiencia",   label: "Audiencia",      icon: "👥" },
-  { id: "tendencias",  label: "Tendencias",     icon: "📈" },
-  { id: "crm",         label: "CRM Clientes",   icon: "👥" },
-  { id: "gmb",         label: "Google Business",icon: "📍" },
-  { id: "googleads",   label: "Google Ads",     icon: "G" },
-  { id: "whatsapp",    label: "WhatsApp",       icon: "💬" },
-  { id: "chat",        label: "Chat IA",        icon: "🤖" },
-  { id: "config",      label: "Configuración",  icon: "⚙️" },
+  { id: "inicio",      label: "Inicio",         icon: "🏠" },
+  { id: "posts",       label: "Posts",           icon: "📋" },
+  { id: "constancia",  label: "Constancia",      icon: "📅" },
+  { id: "ideas",       label: "Ideas IA",        icon: "💡" },
+  { id: "audiencia",   label: "Audiencia",       icon: "👥" },
+  { id: "tendencias",  label: "Tendencias",      icon: "📈" },
+  { id: "crm",         label: "CRM Clientes",    icon: "🗂️" },
+  { id: "gmb",         label: "Google Business", icon: "📍" },
+  { id: "googleads",   label: "Google Ads",      icon: "G" },
+  { id: "whatsapp",    label: "WhatsApp",        icon: "💬" },
+  { id: "reporte",     label: "Reporte Mensual", icon: "📊" },
+  { id: "chat",        label: "Chat IA",         icon: "🤖" },
+  { id: "config",      label: "Configuración",   icon: "⚙️" },
 ]
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -3121,6 +3347,7 @@ export default function App() {
       case "gmb":        return <ModGoogleBusiness />
       case "googleads":  return <ModGoogleAds />
       case "whatsapp":   return <ModWhatsApp />
+      case "reporte":    return <ModReporte config={config} />
       case "chat":       return <ModChat config={config} />
       case "config":     return <ModConfig config={config} setConfig={setConfig} />
       default:           return <ModInicio />
