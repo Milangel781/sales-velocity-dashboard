@@ -3072,6 +3072,295 @@ function ModWhatsApp() {
 // SIDEBAR NAV
 // ══════════════════════════════════════════════════════════════════════════════
 // ══════════════════════════════════════════════════════════════════════════════
+// MODULE: DIAGNÓSTICO INICIAL
+// ══════════════════════════════════════════════════════════════════════════════
+function ModDiagnostico({ config = {} }) {
+  const hasRealAI = config.anthropicKey && config.anthropicKey.startsWith("sk-ant-")
+  const [step, setStep] = useState("form") // "form" | "loading" | "result"
+  const [answers, setAnswers] = useState({ redes:[], frecuencia:"", objetivo:"", seguidores:"", desafio:"", nombre:"", negocio:"", email:"" })
+  const [resultado, setResultado] = useState(null)
+
+  const preguntas = [
+    {
+      id:"redes", label:"¿En qué redes publicas actualmente?", type:"multi",
+      opciones:[{v:"Instagram",icon:"📸",col:C.ig},{v:"TikTok",icon:"🎵",col:C.tk},{v:"Facebook",icon:"👥",col:C.fb},{v:"LinkedIn",icon:"💼",col:C.li},{v:"YouTube",icon:"▶️",col:C.yt},{v:"WhatsApp",icon:"💬",col:C.wa}]
+    },
+    {
+      id:"frecuencia", label:"¿Con qué frecuencia publicas?", type:"single",
+      opciones:[{v:"Diario",icon:"🔥"},{v:"3-4 veces/semana",icon:"⚡"},{v:"1-2 veces/semana",icon:"📅"},{v:"Ocasionalmente",icon:"💤"},{v:"No publico aún",icon:"🆕"}]
+    },
+    {
+      id:"objetivo", label:"¿Cuál es tu objetivo principal?", type:"single",
+      opciones:[{v:"Generar leads y clientes",icon:"🎯"},{v:"Aumentar ventas directas",icon:"💰"},{v:"Crecer seguidores",icon:"📈"},{v:"Posicionarme como experto",icon:"🏆"},{v:"Fidelizar clientes actuales",icon:"♥"}]
+    },
+    {
+      id:"seguidores", label:"¿Cuántos seguidores tienes aproximadamente?", type:"single",
+      opciones:[{v:"0–500",icon:"🌱"},{v:"500–2,000",icon:"🌿"},{v:"2,000–10,000",icon:"🌳"},{v:"10,000–50,000",icon:"🌲"},{v:"+50,000",icon:"🏔️"}]
+    },
+    {
+      id:"desafio", label:"¿Cuál es tu mayor desafío hoy?", type:"single",
+      opciones:[{v:"No sé qué contenido funciona",icon:"🤷"},{v:"Publico pero no genero ventas",icon:"😔"},{v:"No tengo tiempo para publicar",icon:"⏰"},{v:"Mi audiencia no interactúa",icon:"📉"},{v:"No sé medir mis resultados",icon:"🔍"}]
+    },
+  ]
+
+  const toggleRed = (v) => {
+    setAnswers(a => ({ ...a, redes: a.redes.includes(v) ? a.redes.filter(x=>x!==v) : [...a.redes, v] }))
+  }
+
+  const isComplete = answers.redes.length > 0 && answers.frecuencia && answers.objetivo && answers.seguidores && answers.desafio
+
+  // Recomendaciones template (sin IA)
+  const buildRecomendaciones = () => {
+    const recs = []
+    if (answers.desafio === "Publico pero no genero ventas") {
+      recs.push({ num:"01", titulo:"Agrega un CTA comercial a cada post", desc:"El 80% del contenido sin CTA no genera leads. En cada publicación incluye: '¿Te identificas? Escríbeme al WhatsApp y te digo cómo aplicarlo a tu caso.'", impacto:"Alto", col:C.red, icon:"🎯" })
+    } else if (answers.desafio === "No sé qué contenido funciona") {
+      recs.push({ num:"01", titulo:"Analiza tus 3 posts con más vistas esta semana", desc:"Identifica el patrón: ¿qué tienen en común? Tema, formato, longitud, horario. Ese patrón es tu fórmula. Repítelo con variaciones los próximos 30 días.", impacto:"Alto", col:C.red, icon:"🔍" })
+    } else if (answers.desafio === "Mi audiencia no interactúa") {
+      recs.push({ num:"01", titulo:"Cambia declaraciones por preguntas", desc:"Los posts que terminan en pregunta directa generan 3x más comentarios. Ejemplo: en vez de 'La constancia es clave', escribe '¿Cuántos días a la semana le dedicas a tu perro?'", impacto:"Alto", col:C.red, icon:"💬" })
+    } else {
+      recs.push({ num:"01", titulo:"Define un día y hora fijos de publicación", desc:"La consistencia predecible genera hasta 40% más alcance. Elige 3 días/semana y publícalos siempre a la misma hora. El algoritmo premia la regularidad.", impacto:"Alto", col:C.red, icon:"📅" })
+    }
+    if (answers.frecuencia === "Ocasionalmente" || answers.frecuencia === "No publico aún") {
+      recs.push({ num:"02", titulo:"Lanza una 'Semana de Contenido' de arranque", desc:"Publica 7 días seguidos con el mismo formato: pregunta del día. Sin edición compleja, solo texto + imagen sencilla. Esto activa el algoritmo y genera datos para tomar decisiones.", impacto:"Medio", col:C.orange, icon:"🚀" })
+    } else if (answers.redes.length === 1) {
+      recs.push({ num:"02", titulo:"Repurposea tu mejor contenido a un segundo canal", desc:`Tomas lo que ya funciona en ${answers.redes[0]} y lo adaptas. Un Reel se convierte en Story + carrusel + mensaje de WhatsApp. Mismo esfuerzo, 3x el alcance.`, impacto:"Medio", col:C.orange, icon:"♻️" })
+    } else {
+      recs.push({ num:"02", titulo:"Concentra el 80% de tu energía en 1-2 redes", desc:`Tienes ${answers.redes.length} redes activas. Más no es mejor: enfócate en las 2 donde está tu audiencia. Las demás en piloto automático con reposts.`, impacto:"Medio", col:C.orange, icon:"🎯" })
+    }
+    if (answers.objetivo === "Generar leads y clientes" || answers.objetivo === "Aumentar ventas directas") {
+      recs.push({ num:"03", titulo:"Crea un lead magnet de 1 página esta semana", desc:"Un PDF gratuito, checklist o guía rápida relacionada con tu negocio. Promociónalo en tus redes y captura el WhatsApp de quien lo pide. Es tu lista propia, independiente del algoritmo.", impacto:"Medio", col:C.cyan, icon:"📋" })
+    } else if (answers.seguidores === "0–500" || answers.seguidores === "500–2,000") {
+      recs.push({ num:"03", titulo:"Colabora con una cuenta complementaria", desc:"Busca una marca o persona con tu misma audiencia pero diferente servicio. Un reel colaborativo puede darte entre 500–2,000 nuevos seguidores en una semana sin inversión.", impacto:"Medio", col:C.cyan, icon:"🤝" })
+    } else {
+      recs.push({ num:"03", titulo:"Activa tu base de seguidores con una oferta de tiempo limitado", desc:"Con +2,000 seguidores tienes suficiente audiencia. Una oferta de 48 horas bien comunicada puede generar 10-30 ventas directas en tu primer intento.", impacto:"Medio", col:C.cyan, icon:"⚡" })
+    }
+    return recs
+  }
+
+  const scoreCalc = () => {
+    let s = 0
+    if (answers.redes.length >= 2) s += 20
+    else if (answers.redes.length === 1) s += 10
+    if (answers.frecuencia === "Diario") s += 25
+    else if (answers.frecuencia === "3-4 veces/semana") s += 20
+    else if (answers.frecuencia === "1-2 veces/semana") s += 12
+    else if (answers.frecuencia === "Ocasionalmente") s += 5
+    if (answers.seguidores === "+50,000") s += 25
+    else if (answers.seguidores === "10,000–50,000") s += 20
+    else if (answers.seguidores === "2,000–10,000") s += 15
+    else if (answers.seguidores === "500–2,000") s += 8
+    else s += 3
+    if (answers.objetivo === "Generar leads y clientes" || answers.objetivo === "Aumentar ventas directas") s += 15
+    else s += 8
+    s += 15 // base por completar el diagnóstico
+    return Math.min(s, 100)
+  }
+
+  const handleGenerar = async () => {
+    setStep("loading")
+    let recs
+    if (hasRealAI) {
+      const prompt = `Eres consultor de Sales Velocity AI. Un negocio completó el diagnóstico digital con estas respuestas:
+- Redes activas: ${answers.redes.join(", ")}
+- Frecuencia de publicación: ${answers.frecuencia}
+- Objetivo principal: ${answers.objetivo}
+- Seguidores actuales: ${answers.seguidores}
+- Mayor desafío: ${answers.desafio}
+- Nombre del negocio: ${answers.negocio || "No indicado"}
+
+Genera exactamente 3 recomendaciones comerciales accionables y específicas para este negocio.
+Para cada recomendación usa este formato JSON exacto (responde SOLO el JSON, sin texto adicional):
+[
+  {"num":"01","titulo":"título corto","desc":"descripción de 2-3 oraciones concretas y accionables","impacto":"Alto","icon":"emoji relevante"},
+  {"num":"02","titulo":"...","desc":"...","impacto":"Medio","icon":"..."},
+  {"num":"03","titulo":"...","desc":"...","impacto":"Medio","icon":"..."}
+]`
+      try {
+        const raw = await callClaudeAPI(prompt, config.anthropicKey)
+        const jsonMatch = raw.match(/\[[\s\S]*\]/)
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0])
+          recs = parsed.map((r, i) => ({ ...r, col: [C.red, C.orange, C.cyan][i] }))
+        } else {
+          recs = buildRecomendaciones()
+        }
+      } catch {
+        recs = buildRecomendaciones()
+      }
+    } else {
+      await new Promise(r => setTimeout(r, 1200))
+      recs = buildRecomendaciones()
+    }
+    const score = scoreCalc()
+    setResultado({ recs, score })
+    setStep("result")
+  }
+
+  const resetDiag = () => {
+    setStep("form")
+    setAnswers({ redes:[], frecuencia:"", objetivo:"", seguidores:"", desafio:"", nombre:"", negocio:"", email:"" })
+    setResultado(null)
+  }
+
+  const scoreLabel = (s) => s >= 70 ? { label:"Ecosistema sólido", col:C.green, icon:"🏆" } : s >= 45 ? { label:"En desarrollo", col:C.orange, icon:"⚡" } : { label:"Gran oportunidad", col:C.cyan, icon:"🚀" }
+
+  const inputSt = { width:"100%", background:C.card2, border:`1px solid ${C.border}`, borderRadius:8, padding:"8px 10px", color:C.text, fontSize:13, outline:"none", boxSizing:"border-box" }
+
+  if (step === "loading") return (
+    <div style={{ padding:24, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight:400 }}>
+      <div style={{ fontSize:48, marginBottom:16, animation:"pulse 1.5s infinite" }}>🔍</div>
+      <div style={{ fontSize:18, fontWeight:700, color:C.purple, marginBottom:8 }}>Analizando tu ecosistema digital…</div>
+      <div style={{ fontSize:13, color:C.muted, textAlign:"center", maxWidth:360 }}>
+        {hasRealAI ? "Claude IA está generando recomendaciones personalizadas para tu negocio" : "Procesando tus respuestas y generando recomendaciones accionables"}
+      </div>
+      <div style={{ marginTop:24, display:"flex", gap:8 }}>
+        {[0,1,2].map(i => <div key={i} style={{ width:10, height:10, borderRadius:"50%", background:C.purple, opacity:0.3+(i*0.35) }} />)}
+      </div>
+    </div>
+  )
+
+  if (step === "result" && resultado) {
+    const sl = scoreLabel(resultado.score)
+    return (
+      <div style={{ padding:24 }}>
+        {/* Header resultado */}
+        <div style={{ ...sx.card, borderLeft:`3px solid ${sl.col}`, background:`${sl.col}08`, marginBottom:20, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <div>
+            <div style={{ fontSize:13, color:sl.col, fontWeight:700, marginBottom:4 }}>📋 Diagnóstico completado {hasRealAI ? "· IA Real" : ""}</div>
+            <div style={{ fontSize:22, fontWeight:800, color:C.text }}>{sl.icon} {sl.label}</div>
+            <div style={{ fontSize:13, color:C.muted, marginTop:4 }}>
+              {answers.negocio && <span><strong style={{color:C.text}}>{answers.negocio}</strong> · </span>}
+              Potencial de optimización digital detectado
+            </div>
+          </div>
+          <div style={{ textAlign:"center" }}>
+            <div style={{ fontSize:42, fontWeight:800, color:sl.col }}>{resultado.score}</div>
+            <div style={{ fontSize:11, color:C.muted }}>Score / 100</div>
+            <div style={{ background:`${sl.col}22`, borderRadius:20, height:6, width:80, marginTop:6, overflow:"hidden" }}>
+              <div style={{ background:sl.col, width:`${resultado.score}%`, height:"100%", borderRadius:20 }} />
+            </div>
+          </div>
+        </div>
+
+        {/* Resumen respuestas */}
+        <div style={{ ...sx.card, marginBottom:16 }}>
+          <div style={{ fontSize:12, color:C.muted, fontWeight:700, textTransform:"uppercase", letterSpacing:1, marginBottom:10 }}>Resumen del diagnóstico</div>
+          <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
+            {answers.redes.map(r => <Tag key={r} col={C.ig}>{r}</Tag>)}
+            <Tag col={C.cyan}>{answers.frecuencia}</Tag>
+            <Tag col={C.purple}>{answers.objetivo}</Tag>
+            <Tag col={C.orange}>{answers.seguidores} seguidores</Tag>
+            <Tag col={C.muted}>{answers.desafio}</Tag>
+          </div>
+        </div>
+
+        {/* Recomendaciones */}
+        <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:12 }}>🎯 Tus 3 recomendaciones accionables</div>
+        {resultado.recs.map((r, i) => (
+          <div key={i} style={{ ...sx.card, marginBottom:12, borderLeft:`3px solid ${r.col}` }}>
+            <div style={{ display:"flex", alignItems:"flex-start", gap:12 }}>
+              <div style={{ background:`${r.col}22`, color:r.col, border:`1px solid ${r.col}44`, borderRadius:10, padding:"8px 10px", fontSize:20, flexShrink:0 }}>{r.icon}</div>
+              <div style={{ flex:1 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
+                  <span style={{ fontSize:14, fontWeight:700, color:C.text }}>{r.titulo}</span>
+                  <Tag col={r.col}>Impacto {r.impacto}</Tag>
+                </div>
+                <p style={{ margin:0, fontSize:13, color:C.sub, lineHeight:1.75 }}>{r.desc}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {/* CTA */}
+        <div style={{ ...sx.card, background:`${C.purple}08`, borderLeft:`3px solid ${C.purple}`, display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
+          <div>
+            <div style={{ fontSize:13, fontWeight:700, color:C.purple, marginBottom:4 }}>¿Quieres implementar estas recomendaciones con acompañamiento?</div>
+            <div style={{ fontSize:12, color:C.muted }}>Sales Velocity AI ofrece planes desde $150/mes con dashboard, análisis mensual y estrategia personalizada.</div>
+          </div>
+          <a href="https://wa.me/573142452458?text=Hola%2C%20completé%20el%20diagnóstico%20de%20Sales%20Velocity%20AI%20y%20quiero%20saber%20más"
+            target="_blank" rel="noopener noreferrer"
+            style={{ background:C.wa, border:"none", borderRadius:10, padding:"10px 20px", cursor:"pointer", color:"#fff", fontSize:13, fontWeight:700, textDecoration:"none", whiteSpace:"nowrap", flexShrink:0 }}>
+            💬 Hablar con un asesor
+          </a>
+        </div>
+
+        <button onClick={resetDiag} style={{ background:"transparent", border:`1px solid ${C.border}`, borderRadius:8, padding:"8px 18px", cursor:"pointer", color:C.sub, fontSize:13 }}>
+          ← Hacer nuevo diagnóstico
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ padding:24 }}>
+      <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:8 }}>
+        <div style={{ width:42, height:42, borderRadius:10, background:`${C.cyan}22`, border:`1px solid ${C.cyan}55`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>🔍</div>
+        <div>
+          <h2 style={{ margin:0, fontSize:20, fontWeight:700 }}>Diagnóstico Inicial</h2>
+          <p style={{ margin:0, color:C.muted, fontSize:13 }}>5 preguntas · 3 recomendaciones accionables · {hasRealAI ? "✨ IA Real activa" : "Análisis automático"}</p>
+        </div>
+      </div>
+
+      {/* Progreso */}
+      <div style={{ ...sx.card, marginBottom:20, display:"flex", alignItems:"center", gap:12 }}>
+        <div style={{ flex:1, background:C.card2, borderRadius:4, height:6, overflow:"hidden" }}>
+          <div style={{ background:C.cyan, height:"100%", borderRadius:4, width:`${(
+            (answers.redes.length>0?1:0)+(answers.frecuencia?1:0)+(answers.objetivo?1:0)+(answers.seguidores?1:0)+(answers.desafio?1:0)
+          )/5*100}%`, transition:"width 0.3s" }} />
+        </div>
+        <span style={{ fontSize:12, color:C.muted, minWidth:60 }}>
+          {(answers.redes.length>0?1:0)+(answers.frecuencia?1:0)+(answers.objetivo?1:0)+(answers.seguidores?1:0)+(answers.desafio?1:0)} / 5
+        </span>
+      </div>
+
+      {/* Datos del negocio */}
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:20 }}>
+        <div style={sx.card}>
+          <label style={{ display:"block", fontSize:11, color:C.muted, marginBottom:6, fontWeight:700, textTransform:"uppercase", letterSpacing:0.8 }}>Tu nombre (opcional)</label>
+          <input value={answers.nombre} onChange={e=>setAnswers(a=>({...a,nombre:e.target.value}))} placeholder="Ej: Rodrigo Arenas" style={inputSt} />
+        </div>
+        <div style={sx.card}>
+          <label style={{ display:"block", fontSize:11, color:C.muted, marginBottom:6, fontWeight:700, textTransform:"uppercase", letterSpacing:0.8 }}>Nombre de tu negocio (opcional)</label>
+          <input value={answers.negocio} onChange={e=>setAnswers(a=>({...a,negocio:e.target.value}))} placeholder="Ej: Agenda Canina" style={inputSt} />
+        </div>
+      </div>
+
+      {/* Preguntas */}
+      {preguntas.map(q => (
+        <div key={q.id} style={{ ...sx.card, marginBottom:14 }}>
+          <div style={{ fontSize:13, fontWeight:700, color:C.text, marginBottom:12 }}>{q.label}</div>
+          <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
+            {q.opciones.map(op => {
+              const sel = q.type==="multi" ? answers.redes.includes(op.v) : answers[q.id]===op.v
+              const col = op.col || C.purple
+              return (
+                <button key={op.v} onClick={() => q.type==="multi" ? toggleRed(op.v) : setAnswers(a=>({...a,[q.id]:op.v}))}
+                  style={{ background: sel ? `${col}22` : C.card2, color: sel ? col : C.sub,
+                    border:`1px solid ${sel ? col : C.border}`, borderRadius:10, padding:"8px 14px",
+                    cursor:"pointer", fontSize:12, fontWeight: sel ? 700 : 400, transition:"all 0.15s",
+                    display:"flex", alignItems:"center", gap:6 }}>
+                  <span>{op.icon}</span><span>{op.v}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      ))}
+
+      {/* Botón generar */}
+      <button onClick={handleGenerar} disabled={!isComplete}
+        style={{ background: isComplete ? `linear-gradient(135deg, ${C.purple}, ${C.cyan})` : C.card2,
+          border:"none", borderRadius:12, padding:"14px 32px", cursor: isComplete ? "pointer" : "default",
+          color: isComplete ? "#fff" : C.muted, fontSize:15, fontWeight:700, width:"100%",
+          opacity: isComplete ? 1 : 0.5, transition:"all 0.2s" }}>
+        {isComplete ? `✨ Generar mis 3 recomendaciones${hasRealAI ? " con IA real" : ""}` : "Completa las 5 preguntas para continuar"}
+      </button>
+    </div>
+  )
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 // MODULE: REPORTE MENSUAL
 // ══════════════════════════════════════════════════════════════════════════════
 function ModReporte({ config = {} }) {
@@ -3307,6 +3596,7 @@ const NAV = [
   { id: "gmb",         label: "Google Business", icon: "📍" },
   { id: "googleads",   label: "Google Ads",      icon: "G" },
   { id: "whatsapp",    label: "WhatsApp",        icon: "💬" },
+  { id: "diagnostico", label: "Diagnóstico",      icon: "🔍" },
   { id: "reporte",     label: "Reporte Mensual", icon: "📊" },
   { id: "chat",        label: "Chat IA",         icon: "🤖" },
   { id: "config",      label: "Configuración",   icon: "⚙️" },
@@ -3347,6 +3637,7 @@ export default function App() {
       case "gmb":        return <ModGoogleBusiness />
       case "googleads":  return <ModGoogleAds />
       case "whatsapp":   return <ModWhatsApp />
+      case "diagnostico":return <ModDiagnostico config={config} />
       case "reporte":    return <ModReporte config={config} />
       case "chat":       return <ModChat config={config} />
       case "config":     return <ModConfig config={config} setConfig={setConfig} />
