@@ -120,6 +120,78 @@ function getAIReply(input) {
   return CHAT_KB["default"]
 }
 
+// ─── CHAT IA — CONTEXTO REAL AGENDA CANINA ────────────────────────────────────
+const AGENDA_CANINA_SYSTEM = `Eres el consultor estratégico de Sales Velocity AI para Agenda Canina, negocio de comportamiento y adiestramiento canino dirigido por Rodrigo Arenas en Bogotá, Colombia. Llevas su estrategia de contenido digital y comercial.
+
+DATOS REALES (Mayo–Junio 2026):
+- Seguidores Instagram: 4,538
+- Visualizaciones totales: 26,423 | Interacciones: 1,015 | Cuentas alcanzadas: 5,760
+- Engagement rate: 3.85% | Clics a WhatsApp: 15 | Visitas al perfil: 355
+- Base de clientes registrados: 845
+
+POSTS REALES — RANKING:
+1. "El perro muerde cuando el humano se mueve mal" → Reel · 4,713 vistas · 3,150 alcance · 102 likes · Score 8.7 · Potencial Muy Alto
+2. "Los perros no se educan solos" → Reel · 2,506 vistas · 1,711 alcance · 74 likes · Score 8.4 · Potencial Muy Alto
+3. "Sitios Pet Friendly en calma" → Reel · 1,511 vistas · 794 alcance · 33 likes · Score 8.1
+4. "Mención especial — familia haciendo bien la tarea" → Reel · 957 vistas (testimonios funcionan)
+5. "Receta premium Xoky Meals" → Imagen · 761 vistas · 16 likes
+6. "Xoky Meals sin conservantes" → Imagen · 406 vistas (menor tracción)
+
+AUDIENCIA REAL:
+- 80% mujeres / 20% hombres · Edad core 35–54 años (62.9%)
+- Bogotá 50.5% · Cali 3.5% · Medellín 3.2%
+- Colombia 83.8% · USA 5.8% · España 1.9%
+
+LÍNEAS DE NEGOCIO:
+- Sesiones K9 (comportamiento y adiestramiento)
+- Programa Puppy (cachorros)
+- Xoky Meals — comida natural sin conservantes, 500g a $19,000 COP
+- Charlas y eventos en alianza con Amigo Leal Café
+- WhatsApp principal: +57 314 2452458
+
+PATRONES CLAVE:
+- Reels funcionan 3x mejor que imágenes
+- Pico de interacciones: 2 Jun (162 interacciones, reel "muerde cuando humano se mueve mal")
+- Semana 25–27 May fue la más activa: colaboración Amigo Leal Café impulsó alcance
+- Temas de mayor tracción: seguridad/límites, educación práctica, testimonios
+
+Tu rol: analizar datos, generar recomendaciones de contenido, detectar oportunidades comerciales, ayudar a diseñar estrategias de captación y conversión. Responde siempre en español. Sé concreto, accionable y basado en los datos reales. Máximo 4 párrafos por respuesta.`
+
+// ─── PLANES DE ACTIVACIÓN ─────────────────────────────────────────────────────
+const ACTIVATION_PLANS = {
+  "SV-STARTER-AC26":   { level: "starter",   label: "Starter",   color: "#06B6D4", features: ["chatIA", "pipeline"] },
+  "SV-GROWTH-AC26":    { level: "growth",    label: "Growth",    color: "#8B5CF6", features: ["chatIA", "pipeline", "reports"] },
+  "SV-STRATEGIC-AC26": { level: "strategic", label: "Strategic", color: "#F59E0B", features: ["chatIA", "pipeline", "reports", "advanced"] },
+}
+
+async function callClaudeAPI(userMessage, apiKey) {
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-allow-browser": "true",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 800,
+        system: AGENDA_CANINA_SYSTEM,
+        messages: [{ role: "user", content: userMessage }]
+      })
+    })
+    if (!res.ok) {
+      const err = await res.json()
+      throw new Error(err.error?.message || `Error ${res.status}`)
+    }
+    const data = await res.json()
+    return data.content[0].text
+  } catch (e) {
+    return `⚠️ No se pudo conectar con IA: ${e.message}. Verifica tu API key en ⚙️ Configuración → Chat IA.`
+  }
+}
+
 // ─── TOOLTIP STYLE ────────────────────────────────────────────────────────────
 const TT = { contentStyle: { background: C.card2, border: `1px solid ${C.border}`, borderRadius: 8, color: C.text, fontSize: 12 }, cursor: { fill: `${C.purple}11` } }
 
@@ -751,9 +823,12 @@ function ModTendencias() {
 // ══════════════════════════════════════════════════════════════════════════════
 // MODULE: CHAT IA
 // ══════════════════════════════════════════════════════════════════════════════
-function ModChat() {
+function ModChat({ config = {} }) {
+  const hasRealAI = config.anthropicKey && config.anthropicKey.startsWith("sk-ant-")
   const [msgs, setMsgs] = useState([
-    { role: "ai", text: "¡Hola! Soy tu asistente de Sales Velocity AI. Puedo analizar tus métricas, generar ideas de contenido y detectar oportunidades comerciales. ¿Qué quieres saber hoy?" }
+    { role: "ai", text: hasRealAI
+        ? "¡Hola! Soy tu consultor estratégico de Sales Velocity AI con datos reales de Agenda Canina. Puedo analizar métricas, identificar oportunidades comerciales y recomendar estrategias basadas en tus resultados. ¿Qué quieres explorar hoy?"
+        : "¡Hola! Soy tu asistente de Sales Velocity AI. Puedo analizar tus métricas y oportunidades. Para activar el análisis con IA real, configura tu API key en ⚙️ Configuración → Chat IA." }
   ])
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
@@ -762,31 +837,41 @@ function ModChat() {
   const suggestions = [
     "¿Qué contenido funcionó mejor?",
     "¿Qué debo publicar mañana?",
-    "¿Cuál es mi mejor canal?",
     "¿Cuáles son los mejores horarios?",
-    "Dame ideas para esta semana",
-    "¿Qué oportunidades detectas?",
+    "Dame 3 ideas para esta semana",
+    "¿Qué oportunidades comerciales ves?",
+    "¿Cómo convierto seguidores en clientes?",
   ]
 
-  const send = (text) => {
+  const send = async (text) => {
     const msg = text.trim()
-    if (!msg) return
+    if (!msg || loading) return
     setMsgs(prev => [...prev, { role: "user", text: msg }])
     setInput("")
     setLoading(true)
-    setTimeout(() => {
-      setMsgs(prev => [...prev, { role: "ai", text: getAIReply(msg) }])
-      setLoading(false)
-    }, 800)
+    let reply
+    if (hasRealAI) {
+      reply = await callClaudeAPI(msg, config.anthropicKey)
+    } else {
+      await new Promise(r => setTimeout(r, 700))
+      reply = getAIReply(msg)
+    }
+    setMsgs(prev => [...prev, { role: "ai", text: reply }])
+    setLoading(false)
   }
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }) }, [msgs])
 
   return (
     <div style={{ padding: 24, display: "flex", flexDirection: "column", height: "calc(100vh - 60px)" }}>
-      <div style={{ marginBottom: 14 }}>
-        <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>Chat con IA</h2>
-        <p style={{ margin: "4px 0 0", color: C.muted, fontSize: 13 }}>Consulta sobre métricas, estrategia y oportunidades</p>
+      <div style={{ marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div>
+          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>Chat con IA</h2>
+          <p style={{ margin: "4px 0 0", color: C.muted, fontSize: 13 }}>Consulta sobre métricas, estrategia y oportunidades</p>
+        </div>
+        <span style={{ ...sx.tag(hasRealAI ? C.green : C.orange), fontSize: 11 }}>
+          {hasRealAI ? "🟢 IA Real Activa" : "🟡 Modo Demo"}
+        </span>
       </div>
 
       <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 16 }}>
@@ -846,15 +931,35 @@ function ModChat() {
 // MODULE: CONFIGURACIÓN
 // ══════════════════════════════════════════════════════════════════════════════
 function ModConfig({ config, setConfig }) {
+  const [codeInput, setCodeInput] = useState("")
+  const [codeMsg, setCodeMsg] = useState("")
+  const [showKey, setShowKey] = useState(false)
+
+  const activatePlan = () => {
+    const plan = ACTIVATION_PLANS[codeInput.trim().toUpperCase()]
+    if (plan) {
+      setConfig(p => ({ ...p, planCode: codeInput.trim().toUpperCase(), planLevel: plan.level, planLabel: plan.label }))
+      setCodeMsg("✅ Plan " + plan.label + " activado correctamente.")
+    } else {
+      setCodeMsg("❌ Código inválido. Verifica con Sales Velocity AI.")
+    }
+  }
+
+  const deactivatePlan = () => {
+    setConfig(p => ({ ...p, planCode: "", planLevel: "demo", planLabel: "" }))
+    setCodeInput("")
+    setCodeMsg("")
+  }
+
   const fields = [
-    { key: "client",      label: "Nombre del cliente",    type: "text",   placeholder: "Ej: Agencia Digital Pro" },
-    { key: "industry",    label: "Industria",              type: "select", options: ["Marketing Digital","E-commerce","Salud y Bienestar","Educación","Finanzas","Inmobiliaria","Restaurantes","Moda","Tecnología","Consultoría"] },
+    { key: "client",      label: "Nombre del cliente",    type: "text",   placeholder: "Ej: Agenda Canina" },
+    { key: "industry",    label: "Industria",              type: "select", options: ["Marketing Digital","E-commerce","Salud y Bienestar","Educación","Finanzas","Inmobiliaria","Restaurantes","Moda","Tecnología","Consultoría","Comportamiento Canino"] },
     { key: "country",     label: "País",                   type: "select", options: ["México","Colombia","Argentina","España","Chile","Perú","Ecuador","Otro"] },
     { key: "goal",        label: "Objetivo principal",     type: "select", options: ["Generar Leads","Aumentar Ventas","Crecer Seguidores","Brand Awareness","Retener Clientes"] },
     { key: "tone",        label: "Tono de marca",          type: "select", options: ["Profesional","Cercano y amigable","Inspiracional","Educativo","Humorístico","Corporativo"] },
-    { key: "offer",       label: "Oferta principal",       type: "text",   placeholder: "Ej: Consultoría de marketing digital" },
-    { key: "idealClient", label: "Cliente ideal",          type: "text",   placeholder: "Ej: Dueños de negocios entre 30-50 años" },
-    { key: "cta",         label: "CTA principal",          type: "text",   placeholder: "Ej: Agenda tu consulta gratuita" },
+    { key: "offer",       label: "Oferta principal",       type: "text",   placeholder: "Ej: Sesiones de adiestramiento canino" },
+    { key: "idealClient", label: "Cliente ideal",          type: "text",   placeholder: "Ej: Dueños de perros en Bogotá" },
+    { key: "cta",         label: "CTA principal",          type: "text",   placeholder: "Ej: Reserva tu sesión aquí" },
   ]
   const networks = [
     { name: "Instagram", col: C.ig }, { name: "TikTok",    col: C.tk },
@@ -862,14 +967,91 @@ function ModConfig({ config, setConfig }) {
     { name: "Facebook",  col: C.fb }, { name: "WhatsApp",  col: C.wa },
   ]
   const inputSt = { width: "100%", background: C.card2, border: `1px solid ${C.border}`, borderRadius: 8, padding: "8px 10px", color: C.text, fontSize: 13, outline: "none", boxSizing: "border-box" }
+  const planColors = { demo: C.muted, starter: C.cyan, growth: C.purple, strategic: C.orange }
+  const planCol = planColors[config.planLevel] || C.muted
+  const planFeatures = config.planLevel !== "demo" ? (ACTIVATION_PLANS[config.planCode]?.features || []) : []
 
   return (
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 18 }}>
         <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>Configuración</h2>
-        <p style={{ margin: "4px 0 0", color: C.muted, fontSize: 13 }}>Personaliza el dashboard para tu cliente o marca</p>
+        <p style={{ margin: "4px 0 0", color: C.muted, fontSize: 13 }}>Personaliza el dashboard y activa funciones premium</p>
       </div>
 
+      {/* ── PLAN Y ACTIVACIÓN ── */}
+      <div style={{ ...sx.card, borderLeft: `3px solid ${planCol}`, marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: planCol }}>🔑 Plan y Activación</div>
+          <span style={{ ...sx.tag(planCol), fontSize: 11 }}>
+            {config.planLevel === "demo" ? "Demo" : `Plan ${config.planLabel}`}
+          </span>
+        </div>
+        {config.planLevel !== "demo" ? (
+          <div>
+            <div style={{ background: `${C.green}11`, border: `1px solid ${C.green}33`, borderRadius: 8, padding: "10px 14px", marginBottom: 10 }}>
+              <div style={{ color: C.green, fontWeight: 700, fontSize: 13 }}>✅ Plan {config.planLabel} activo</div>
+              <div style={{ color: C.sub, fontSize: 12, marginTop: 4 }}>
+                Funciones activas: {planFeatures.map(f => ({chatIA:"Chat IA Real", pipeline:"CRM Pipeline", reports:"Reportes", advanced:"Avanzado"}[f])).join(" · ")}
+              </div>
+            </div>
+            <button onClick={deactivatePlan} style={{ background: "transparent", border: `1px solid ${C.border}`, borderRadius: 8, padding: "6px 14px", cursor: "pointer", color: C.muted, fontSize: 12 }}>
+              Desactivar plan
+            </button>
+          </div>
+        ) : (
+          <div>
+            <div style={{ fontSize: 12, color: C.muted, marginBottom: 10 }}>Ingresa el código de activación que recibirás al contratar un plan de Sales Velocity AI.</div>
+            <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+              <input value={codeInput} onChange={e => setCodeInput(e.target.value)} placeholder="SV-XXXXXX-XX26"
+                onKeyDown={e => e.key === "Enter" && activatePlan()}
+                style={{ ...inputSt, flex: 1, textTransform: "uppercase", letterSpacing: 1 }} />
+              <button onClick={activatePlan} style={{ background: C.purple, border: "none", borderRadius: 8, padding: "8px 16px", cursor: "pointer", color: "#fff", fontSize: 13, fontWeight: 600, whiteSpace: "nowrap" }}>
+                Activar
+              </button>
+            </div>
+            {codeMsg && <div style={{ fontSize: 12, color: codeMsg.startsWith("✅") ? C.green : C.red, marginTop: 4 }}>{codeMsg}</div>}
+            <div style={{ marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {[{l:"Starter $150/mes",f:"Chat IA · Pipeline CRM",c:C.cyan},{l:"Growth $300/mes",f:"+ Reportes mensuales",c:C.purple},{l:"Strategic $500/mes",f:"+ Funciones avanzadas",c:C.orange}].map((p,i) => (
+                <div key={i} style={{ flex:1, minWidth:140, background:`${p.c}0D`, border:`1px solid ${p.c}33`, borderRadius:8, padding:"8px 10px" }}>
+                  <div style={{ color:p.c, fontWeight:700, fontSize:11 }}>{p.l}</div>
+                  <div style={{ color:C.muted, fontSize:10, marginTop:2 }}>{p.f}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── API KEY CHAT IA ── */}
+      <div style={{ ...sx.card, borderLeft: `3px solid ${C.purple}`, marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: C.purple }}>🤖 Chat IA — API Anthropic</div>
+          <span style={{ ...sx.tag(config.anthropicKey?.startsWith("sk-ant-") ? C.green : C.orange), fontSize: 11 }}>
+            {config.anthropicKey?.startsWith("sk-ant-") ? "🟢 Conectada" : "🟡 Sin configurar"}
+          </span>
+        </div>
+        <div style={{ fontSize: 12, color: C.muted, marginBottom: 8 }}>
+          Cuando está activa, el Chat IA usa Claude real con contexto completo de tus datos. Obtén tu API key en <span style={{color:C.cyan}}>console.anthropic.com</span>
+        </div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <input
+            type={showKey ? "text" : "password"}
+            value={config.anthropicKey || ""}
+            onChange={e => setConfig(p => ({ ...p, anthropicKey: e.target.value }))}
+            placeholder="sk-ant-api03-..."
+            style={{ ...inputSt, flex: 1, fontFamily: "monospace", fontSize: 12 }}
+          />
+          <button onClick={() => setShowKey(s => !s)} style={{ background: C.card2, border: `1px solid ${C.border}`, borderRadius: 8, padding: "8px 10px", cursor: "pointer", color: C.sub, fontSize: 12 }}>
+            {showKey ? "🙈" : "👁"}
+          </button>
+        </div>
+        {config.anthropicKey?.startsWith("sk-ant-") && (
+          <div style={{ marginTop: 8, fontSize: 11, color: C.green }}>✅ API key válida — Chat IA real activado. Ve al módulo Chat IA para probarlo.</div>
+        )}
+      </div>
+
+      {/* ── DATOS DEL CLIENTE ── */}
+      <div style={{ fontSize: 12, color: C.muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10, marginTop: 4 }}>Datos del Cliente</div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
         {fields.map(f => (
           <div key={f.key} style={sx.card}>
@@ -907,9 +1089,9 @@ function ModConfig({ config, setConfig }) {
       </div>
 
       <div style={{ ...sx.card, borderLeft: `3px solid ${C.cyan}`, marginBottom: 16 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: C.cyan, marginBottom: 10 }}>🔌 Integraciones futuras disponibles</div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: C.cyan, marginBottom: 10 }}>🔌 Integraciones disponibles</div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-          {["WhatsApp Business","Meta Ads","Instagram API","TikTok Ads","Google Sheets","Airtable","HubSpot CRM","Mailchimp","Zapier","Make (Integromat)","Google Ads","Stripe","Notion","Calendly"].map((int, i) => (
+          {["WhatsApp Business API","Meta Ads","Instagram API","Google Sheets","HubSpot CRM","Mailchimp","Google Ads","Stripe","Make (Integromat)","Calendly"].map((int, i) => (
             <span key={i} style={{ ...sx.tag(C.cyan), opacity: 0.65, fontSize: 11 }}>🔗 {int}</span>
           ))}
         </div>
@@ -1827,8 +2009,8 @@ function ModCRM() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display:"flex", gap:8, marginBottom:20 }}>
-        {[["clientes","Clientes",C.purple],["razas","Por raza",C.orange],["whatsapp","WhatsApp CRM",C.wa]].map(([id,label,col]) => (
+      <div style={{ display:"flex", gap:8, marginBottom:20, flexWrap:"wrap" }}>
+        {[["clientes","👥 Clientes",C.purple],["pipeline","🎯 Pipeline",C.green],["razas","🐕 Por raza",C.orange],["whatsapp","💬 WhatsApp",C.wa]].map(([id,label,col]) => (
           <button key={id} onClick={() => setTab(id)} style={{
             background: tab===id ? col : C.card2, color: tab===id ? "#fff" : C.sub,
             border:`1px solid ${tab===id ? col : C.border}`, borderRadius:20,
@@ -1919,6 +2101,94 @@ function ModCRM() {
               Los cachorros (<strong style={{ color:C.orange }}>160 clientes Pup</strong>) son oportunidad de fidelización a largo plazo.
               Las razas más comunes son <strong style={{ color:C.text }}>Criollo (32), Golden (25) y Collie (24)</strong> — contenido sobre estas razas tendría alta resonancia.
               Con una campaña de WhatsApp a los 845 clientes K9, estimando 15% de respuesta, se generarían <strong style={{ color:C.green }}>~127 leads directos</strong> en 48 horas.
+            </p>
+          </div>
+        </>
+      )}
+
+      {/* TAB: PIPELINE */}
+      {tab === "pipeline" && (
+        <>
+          {/* Funnel visual */}
+          <div style={{ ...sx.card, marginBottom:16, borderLeft:`3px solid ${C.green}` }}>
+            <div style={{ fontSize:13, fontWeight:700, color:C.green, marginBottom:16 }}>🎯 Pipeline de Conversión — Agenda Canina</div>
+            <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+              {[
+                { stage:"Fundadores / Premium", count:8,   pct:100, col:C.orange, icon:"⭐", desc:"Clientes fundadores y aliados estratégicos", next:"Retener y activar como referentes" },
+                { stage:"K9 — Clientes Activos", count:637, pct:75, col:C.purple, icon:"🏆", desc:"Completaron programa K9 de comportamiento", next:"Reactivar con seguimiento o programa avanzado" },
+                { stage:"Pup — Programa Cachorro", count:160, pct:45, col:C.cyan, icon:"🐾", desc:"En programa inicial o primer contacto", next:"Convertir a K9 cuando el perro cumpla edad" },
+                { stage:"Leads / Sin clasificar", count:40,  pct:20, col:C.muted, icon:"📋", desc:"Contactos sin programa asignado aún", next:"Calificar y asignar al programa correcto" },
+              ].map((s, i) => (
+                <div key={i} style={{ ...sx.card2, display:"flex", alignItems:"center", gap:14 }}>
+                  <div style={{ fontSize:22 }}>{s.icon}</div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:6 }}>
+                      <span style={{ fontSize:13, fontWeight:700, color:C.text }}>{s.stage}</span>
+                      <span style={{ fontSize:18, fontWeight:700, color:s.col }}>{s.count.toLocaleString()}</span>
+                    </div>
+                    <div style={{ background:`${C.border}`, borderRadius:4, height:6, marginBottom:6, overflow:"hidden" }}>
+                      <div style={{ background:s.col, width:`${s.pct}%`, height:"100%", borderRadius:4, transition:"width 0.5s" }} />
+                    </div>
+                    <div style={{ display:"flex", justifyContent:"space-between", fontSize:11, color:C.muted }}>
+                      <span>{s.desc}</span>
+                      <span style={{ color:s.col }}>→ {s.next}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Métricas de conversión */}
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10, marginBottom:16 }}>
+            {[
+              { v:"845",  l:"Total clientes",       col:C.purple, icon:"👥" },
+              { v:"75.4%",l:"Tasa conversión K9",   col:C.green,  icon:"📈" },
+              { v:"18.9%",l:"Clientes Pup",          col:C.cyan,   icon:"🐾" },
+              { v:"~127", l:"Leads potenciales WA",  col:C.wa,     icon:"💬" },
+            ].map(m => (
+              <div key={m.l} style={{ ...sx.card, textAlign:"center" }}>
+                <div style={{ fontSize:18, marginBottom:4 }}>{m.icon}</div>
+                <div style={{ fontSize:22, fontWeight:700, color:m.col }}>{m.v}</div>
+                <div style={{ fontSize:11, color:C.muted, marginTop:4 }}>{m.l}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Acciones por etapa */}
+          <div style={{ ...sx.card, marginBottom:16 }}>
+            <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>⚡ Acciones recomendadas por etapa</div>
+            {[
+              { stage:"K9 Activos (637)", accion:"Campaña de reactivación WhatsApp", impacto:"~95 clientes contactan de nuevo", urgencia:"Alta", col:C.purple },
+              { stage:"Pup (160)", accion:"Recordatorio evolución a K9 cuando el perro cumpla 6 meses", impacto:"~48 nuevas sesiones K9", urgencia:"Media", col:C.cyan },
+              { stage:"Todos (845)", accion:"Xoky Meals — oferta especial a base completa", impacto:"~127 pedidos potenciales", urgencia:"Alta", col:C.orange },
+              { stage:"Sin clasificar (40)", accion:"WhatsApp de calificación: '¿Tu perro tiene más o menos de 1 año?'", impacto:"Asignar al programa correcto", urgencia:"Baja", col:C.muted },
+            ].map((a, i) => (
+              <div key={i} style={{ ...sx.card2, marginBottom:8, display:"flex", gap:12, alignItems:"flex-start" }}>
+                <div style={{ width:3, background:a.col, borderRadius:2, alignSelf:"stretch", flexShrink:0 }} />
+                <div style={{ flex:1 }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+                    <Tag col={a.col}>{a.stage}</Tag>
+                    <Tag col={a.urgencia==="Alta" ? C.red : a.urgencia==="Media" ? C.orange : C.muted}>
+                      {a.urgencia === "Alta" ? "🔥" : a.urgencia === "Media" ? "⚡" : "💡"} {a.urgencia}
+                    </Tag>
+                  </div>
+                  <div style={{ fontSize:13, fontWeight:600, marginBottom:3, color:C.text }}>{a.accion}</div>
+                  <div style={{ fontSize:11, color:C.muted }}>Impacto estimado: {a.impacto}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Insight IA */}
+          <div style={{ ...sx.card, borderLeft:`3px solid ${C.green}`, background:`${C.green}08` }}>
+            <div style={{ fontSize:13, fontWeight:700, color:C.green, marginBottom:8 }}>🤖 Análisis de Pipeline</div>
+            <p style={{ margin:0, fontSize:13, color:C.sub, lineHeight:1.75 }}>
+              Con <strong style={{ color:C.text }}>845 clientes registrados</strong> y 3,105 contactos totales con WhatsApp disponible,
+              Agenda Canina tiene uno de los activos comerciales más sólidos del mercado canino en Bogotá.
+              El <strong style={{ color:C.purple }}>75.4% de conversión a K9</strong> es excepcionalmente alto — indica un servicio con alta retención y satisfacción.
+              La oportunidad inmediata está en los <strong style={{ color:C.cyan }}>160 clientes Pup</strong> que madurarán hacia K9,
+              y en activar la base completa con <strong style={{ color:C.orange }}>Xoky Meals</strong> como product de menor barrera de entrada.
             </p>
           </div>
         </>
@@ -2831,6 +3101,10 @@ export default function App() {
     idealClient: "Dueños de perros con problemas de conducta",
     cta: "Reserva tu sesión aquí",
     networks: ["Instagram", "WhatsApp"],
+    anthropicKey: "",
+    planCode: "",
+    planLevel: "demo",
+    planLabel: "",
   })
 
   const current = NAV.find(n => n.id === mod)
@@ -2847,7 +3121,7 @@ export default function App() {
       case "gmb":        return <ModGoogleBusiness />
       case "googleads":  return <ModGoogleAds />
       case "whatsapp":   return <ModWhatsApp />
-      case "chat":       return <ModChat />
+      case "chat":       return <ModChat config={config} />
       case "config":     return <ModConfig config={config} setConfig={setConfig} />
       default:           return <ModInicio />
     }
