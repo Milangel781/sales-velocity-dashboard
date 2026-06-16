@@ -61,42 +61,48 @@ function Tag({ col, children }) {
 
 // ─── DATOS 100% REALES — CSV Meta Business Suite May 8 - Jun 4, 2026 ──────────
 const POSTS = [
-  { id:1, ch:"Instagram", type:"Reel",  title:"El perro muerde cuando el humano se mueve mal",       views:4713, reach:3150, likes:102, comments:1,  shares:7,  saved:7, score:8.7, commercial:"Muy Alto", ai:"Repetir: 'Señales de que tu perro necesita espacio personal'", color:C.ig, icon:"▶", date:"02 Jun" },
-  { id:2, ch:"Instagram", type:"Reel",  title:"Los perros no se educan solos — hay que hacer la tarea", views:2506, reach:1711, likes:74, comments:1, shares:4,  saved:1, score:8.4, commercial:"Muy Alto", ai:"Serie antes/después con resultados reales de clientes",          color:C.ig, icon:"▶", date:"26 May" },
-  { id:3, ch:"Instagram", type:"Reel",  title:"Sitios Pet Friendly en calma y armonía",              views:1511, reach:794,  likes:33, comments:3,  shares:1,  saved:1, score:8.1, commercial:"Alto",     ai:"Guía completa pet friendly Bogotá como lead magnet",            color:C.ig, icon:"▶", date:"01 Jun" },
-  { id:4, ch:"Instagram", type:"Reel",  title:"Mención especial — familia haciendo bien la tarea",   views:957,  reach:695,  likes:9,  comments:2,  shares:1,  saved:0, score:6.8, commercial:"Medio",    ai:"Serie de testimonios de familias con transformación real",       color:C.ig, icon:"▶", date:"27 May" },
-  { id:5, ch:"Instagram", type:"Imagen",title:"Receta premium natural para perros",                  views:761,  reach:417,  likes:16, comments:4,  shares:3,  saved:0, score:8.7, commercial:"Alto",     ai:"Reel mostrando proceso de preparación paso a paso",             color:C.ig, icon:"▶", date:"24 May" },
-  { id:6, ch:"Instagram", type:"Imagen",title:"Xoky Meals — comida natural sin conservantes",        views:406,  reach:234,  likes:7,  comments:0,  shares:1,  saved:0, score:6.5, commercial:"Medio",    ai:"Reel con testimonios de dueños que lo usan",                    color:C.ig, icon:"▶", date:"29 May" },
+  { id:1,  ch:"Instagram", type:"Reel",    title:"Cuando el perro muerde — el humano se movió mal",         views:4880, reach:3221, likes:108, comments:1,  shares:7, saved:7, score:9.1, commercial:"Muy Alto", ai:"Serie: 'Señales de alerta en el lenguaje canino' — alto potencial viral", color:C.ig, icon:"▶", date:"02 Jun" },
+  { id:2,  ch:"Instagram", type:"Reel",    title:"Los perros no se educan solos — hay que hacer la tarea",  views:2572, reach:1744, likes:76,  comments:1,  shares:4, saved:1, score:8.4, commercial:"Muy Alto", ai:"Serie antes/después con resultados reales de clientes",              color:C.ig, icon:"▶", date:"26 May" },
+  { id:3,  ch:"Instagram", type:"Reel",    title:"Terrazas y sitios Pet Friendly en calma y armonía",       views:1641, reach:852,  likes:38,  comments:3,  shares:1, saved:1, score:7.9, commercial:"Alto",     ai:"Guía pet friendly Bogotá — lead magnet descargable",                 color:C.ig, icon:"▶", date:"01 Jun" },
+  { id:4,  ch:"Instagram", type:"Reel",    title:"Cerramos ciclo con Rania — transformación real",          views:1205, reach:806,  likes:39,  comments:10, shares:1, saved:1, score:8.6, commercial:"Muy Alto", ai:"Serie de testimonios con nombre y proceso completo (genera confianza)", color:C.ig, icon:"▶", date:"05 Jun" },
+  { id:5,  ch:"Instagram", type:"Reel",    title:"Perros paseando humanos — hay que revertir ese orden",    views:1202, reach:823,  likes:25,  comments:3,  shares:3, saved:0, score:7.5, commercial:"Alto",     ai:"Hook directo: '¿Tu perro te pasea a ti o tú a él?' — aumenta CTR",  color:C.ig, icon:"▶", date:"15 Jun" },
+  { id:6,  ch:"Instagram", type:"Reel",    title:"Acompañamiento ultra-personalizado — crianza cachorro",   views:1103, reach:753,  likes:28,  comments:2,  shares:2, saved:1, score:7.3, commercial:"Alto",     ai:"Reel 'Día 1 con cachorro nuevo' — muy shareble entre nuevos dueños", color:C.ig, icon:"▶", date:"08 Jun" },
+  { id:7,  ch:"Instagram", type:"Reel",    title:"Mención especial — familia de Taki haciendo bien la tarea", views:999, reach:726, likes:9,  comments:2,  shares:1, saved:0, score:6.5, commercial:"Medio",   ai:"Serie de menciones especiales — reconoce y fideliza a clientes activos", color:C.ig, icon:"▶", date:"27 May" },
+  { id:8,  ch:"Instagram", type:"Imagen",  title:"Receta premium natural para perros — Xoky Meals",         views:800,  reach:431,  likes:16,  comments:4,  shares:3, saved:0, score:6.8, commercial:"Alto",     ai:"Convierte en Reel mostrando el proceso de preparación paso a paso",  color:C.ig, icon:"🖼", date:"24 May" },
+  { id:9,  ch:"Instagram", type:"Imagen",  title:"Xoky Meals — comida cocinada sin conservantes",           views:462,  reach:261,  likes:9,   comments:0,  shares:1, saved:0, score:6.0, commercial:"Medio",    ai:"Reel con testimonios de dueños — 'Mi perro come Xoky desde hace X meses'", color:C.ig, icon:"🖼", date:"29 May" },
+  { id:10, ch:"Instagram", type:"Carrusel",title:"Xoky Meals es calidad de vida — ingredientes naturales",  views:385,  reach:198,  likes:9,   comments:4,  shares:1, saved:0, score:6.2, commercial:"Medio",    ai:"Mostrar tabla comparativa: comida procesada vs Xoky Meals",          color:C.ig, icon:"▶", date:"10 Jun" },
+  { id:11, ch:"Instagram", type:"Reel",    title:"Es normal este comportamiento — aprende a comunicarte",   views:388,  reach:228,  likes:15,  comments:0,  shares:0, saved:0, score:5.9, commercial:"Medio",    ai:"Añadir CTA directo: 'Escríbeme y te digo qué hacer'",               color:C.ig, icon:"▶", date:"16 Jun" },
 ]
 
-// Interacciones diarias reales Mayo-Junio 2026
+// Interacciones diarias reales Mayo 19 – Jun 16, 2026
 const INTERACTIONS_DAILY = [
-  { date:"07/05", int:95,  reach:8    },
-  { date:"08/05", int:67,  reach:8    },
-  { date:"09/05", int:25,  reach:143  },
-  { date:"22/05", int:34,  reach:139  },
-  { date:"23/05", int:27,  reach:178  },
-  { date:"24/05", int:37,  reach:338  },
-  { date:"25/05", int:80,  reach:60   },
-  { date:"26/05", int:90,  reach:1462 },
-  { date:"27/05", int:133, reach:892  },
-  { date:"28/05", int:103, reach:187  },
-  { date:"29/05", int:39,  reach:211  },
-  { date:"30/05", int:24,  reach:404  },
-  { date:"31/05", int:4,   reach:230  },
-  { date:"01/06", int:46,  reach:597  },
-  { date:"02/06", int:162, reach:2405 },
-  { date:"03/06", int:13,  reach:835  },
+  { date:"22/05", int:186, reach:2800 },  // Collab Amigo Leal Café — "Entrenar a tu perro"
+  { date:"24/05", int:23,  reach:431  },  // Imagen receta premium
+  { date:"25/05", int:52,  reach:680  },  // Collab Amigo Leal Café
+  { date:"26/05", int:82,  reach:1744 },  // Reel "Los perros no se educan solos"
+  { date:"27/05", int:191, reach:5920 },  // Reel propio + Collab "Si hay perros, café"
+  { date:"28/05", int:38,  reach:740  },  // Alcance residual
+  { date:"29/05", int:11,  reach:261  },  // Imagen Xoky Meals
+  { date:"30/05", int:18,  reach:380  },  // Alcance residual
+  { date:"01/06", int:43,  reach:852  },  // Reel Pet Friendly
+  { date:"02/06", int:123, reach:3221 },  // 🔥 Reel "Cuando el perro muerde"
+  { date:"03/06", int:32,  reach:740  },  // Alcance residual
+  { date:"05/06", int:51,  reach:806  },  // Reel "Cerramos ciclo con Rania"
+  { date:"06/06", int:20,  reach:340  },  // Alcance residual
+  { date:"08/06", int:33,  reach:753  },  // Reel acompañamiento cachorro
+  { date:"10/06", int:14,  reach:198  },  // Carrusel Xoky Meals
+  { date:"15/06", int:31,  reach:823  },  // Reel "Perros paseando humanos"
+  { date:"16/06", int:15,  reach:228  },  // Reel "Es normal este comportamiento"
 ]
 
 const WEEK = [
-  { day:"Lun", ig:1930, tk:0, li:0, yt:0 },
-  { day:"Mar", ig:1064, tk:0, li:0, yt:0 },
-  { day:"Mié", ig:890,  tk:0, li:0, yt:0 },
-  { day:"Jue", ig:1316, tk:0, li:0, yt:0 },
-  { day:"Vie", ig:980,  tk:0, li:0, yt:0 },
-  { day:"Sáb", ig:620,  tk:0, li:0, yt:0 },
-  { day:"Dom", ig:278,  tk:0, li:0, yt:0 },
+  { day:"Lun", ig:6518, tk:0, li:0, yt:0 },  // 4 posts: May26+Jun01+Jun08+Jun15
+  { day:"Mar", ig:6267, tk:0, li:0, yt:0 },  // 3 posts: May27+Jun02+Jun16
+  { day:"Mié", ig:385,  tk:0, li:0, yt:0 },  // 1 post: Jun10
+  { day:"Jue", ig:462,  tk:0, li:0, yt:0 },  // 1 post: May29
+  { day:"Vie", ig:1205, tk:0, li:0, yt:0 },  // 1 post: Jun05
+  { day:"Sáb", ig:800,  tk:0, li:0, yt:0 },  // 1 post: May24
+  { day:"Dom", ig:0,    tk:0, li:0, yt:0 },  // Sin publicaciones
 ]
 
 const CHAT_KB = {
@@ -123,19 +129,26 @@ function getAIReply(input) {
 // ─── CHAT IA — CONTEXTO REAL AGENDA CANINA ────────────────────────────────────
 const AGENDA_CANINA_SYSTEM = `Eres el consultor estratégico de Sales Velocity AI para Agenda Canina, negocio de comportamiento y adiestramiento canino dirigido por Rodrigo Arenas en Bogotá, Colombia. Llevas su estrategia de contenido digital y comercial.
 
-DATOS REALES (Mayo–Junio 2026):
-- Seguidores Instagram: 4,538
-- Visualizaciones totales: 26,423 | Interacciones: 1,015 | Cuentas alcanzadas: 5,760
-- Engagement rate: 3.85% | Clics a WhatsApp: 15 | Visitas al perfil: 355
+DATOS REALES (May 19 – Jun 16, 2026):
+- Seguidores Instagram: 4,545 (ganados: +7 nuevos seguidores desde posts del período)
+- Visualizaciones totales: 15,637 (cuenta propia) + 11,618 (colaboraciones Amigo Leal Café) = 27,255
+- Interacciones: 437 | Alcance propio: 10,043 | Engagement rate: 4.35%
+- Stories publicadas: 27 | Posts propios: 11 | Colaboraciones: 3
 - Base de clientes registrados: 845
 
-POSTS REALES — RANKING:
-1. "El perro muerde cuando el humano se mueve mal" → Reel · 4,713 vistas · 3,150 alcance · 102 likes · Score 8.7 · Potencial Muy Alto
-2. "Los perros no se educan solos" → Reel · 2,506 vistas · 1,711 alcance · 74 likes · Score 8.4 · Potencial Muy Alto
-3. "Sitios Pet Friendly en calma" → Reel · 1,511 vistas · 794 alcance · 33 likes · Score 8.1
-4. "Mención especial — familia haciendo bien la tarea" → Reel · 957 vistas (testimonios funcionan)
-5. "Receta premium Xoky Meals" → Imagen · 761 vistas · 16 likes
-6. "Xoky Meals sin conservantes" → Imagen · 406 vistas (menor tracción)
+POSTS REALES — RANKING (May 19 – Jun 16, 2026):
+1. "Cuando el perro muerde — el humano se movió mal" → Reel · 4,880 vistas · 3,221 alcance · 108 likes · 7 saves · Score 9.1 · Potencial Muy Alto
+2. "Los perros no se educan solos" → Reel · 2,572 vistas · 1,744 alcance · 76 likes · Score 8.4 · Potencial Muy Alto
+3. "Cerramos ciclo con Rania" → Reel · 1,205 vistas · 806 alcance · 39 likes · 10 comentarios · Score 8.6 (testimonios generan mucho engagement)
+4. "Terrazas Pet Friendly en calma" → Reel · 1,641 vistas · 852 alcance · 38 likes · Score 7.9
+5. "Perros paseando humanos" → Reel · 1,202 vistas · 823 alcance · 25 likes · Score 7.5
+6. "Acompañamiento crianza cachorro" → Reel · 1,103 vistas · 753 alcance · 28 likes · Score 7.3
+7. "Mención especial familia Taki" → Reel · 999 vistas · 726 alcance · 9 likes · Score 6.5
+8. "Receta premium natural Xoky Meals" → Imagen · 800 vistas · 431 alcance · 16 likes · Score 6.8
+9. "Xoky Meals calidad de vida" → Carrusel · 385 vistas · 198 alcance · Score 6.2
+COLABORACIONES DESTACADAS (Amigo Leal Café):
+- "Entrenar a tu perro" → 5,384 vistas · 177 likes (May 22)
+- "Si hay perros, café" → 5,177 vistas · 159 likes (May 27)
 
 AUDIENCIA REAL:
 - 80% mujeres / 20% hombres · Edad core 35–54 años (62.9%)
@@ -200,13 +213,13 @@ const TT = { contentStyle: { background: C.card2, border: `1px solid ${C.border}
 // ══════════════════════════════════════════════════════════════════════════════
 function ModInicio() {
   const metrics = [
-    { label:"Seguidores",      value:"4,538",  delta:"+nuevos este mes", col:C.purple, icon:"👥" },
-    { label:"Visualizaciones", value:"26,423", delta:"últimos 30 días",  col:C.cyan,   icon:"👁" },
-    { label:"Interacciones",   value:"1,015",  delta:"últimos 30 días",  col:C.pink,   icon:"♥" },
-    { label:"Ctas. alcanzadas",value:"5,760",  delta:"cuentas únicas",   col:C.orange, icon:"📡" },
+    { label:"Seguidores",      value:"4,545",  delta:"+7 en el período",  col:C.purple, icon:"👥" },
+    { label:"Visualizaciones", value:"27,255", delta:"May 19 – Jun 16",   col:C.cyan,   icon:"👁" },
+    { label:"Interacciones",   value:"437",    delta:"posts propios",      col:C.pink,   icon:"♥" },
+    { label:"Ctas. alcanzadas",value:"10,043", delta:"alcance propio",     col:C.orange, icon:"📡" },
     { label:"Ctas. interactuaron",value:"495", delta:"últimos 30 días",  col:C.blue,   icon:"💬" },
     { label:"Visitas perfil",  value:"355",    delta:"últimos 30 días",  col:C.green,  icon:"🔖" },
-    { label:"Engagement rate", value:"3.85%",  delta:"interacc/alcance", col:C.purple, icon:"📈" },
+    { label:"Engagement rate", value:"4.35%",  delta:"interacc/alcance", col:C.purple, icon:"📈" },
     { label:"Toques enlace",   value:"15",     delta:"wa.me directo",    col:C.wa,     icon:"🎯" },
   ]
   const best = [
@@ -273,7 +286,7 @@ function ModInicio() {
       <div style={{ ...sx.card, borderLeft: `3px solid ${C.purple}`, background: `${C.purple}0A` }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: C.purple, marginBottom: 8 }}>🤖 Análisis IA — Resumen de la semana</div>
         <p style={{ margin: 0, fontSize: 13, color: C.sub, lineHeight: 1.75 }}>
-          <strong style={{ color: C.text }}>Agenda Canina</strong> tiene <strong style={{ color: C.ig }}>4,538 seguidores</strong> con 26,423 visualizaciones en los últimos 30 días.
+          <strong style={{ color: C.text }}>Agenda Canina</strong> tiene <strong style={{ color: C.ig }}>4,545 seguidores</strong> con 27,255 visualizaciones (May 19 – Jun 16, 2026).
           Los <strong style={{ color: C.text }}>Reels generan el 85.5%</strong> de todas las interacciones — el formato más efectivo por amplio margen.
           El Reel <strong style={{ color: C.text }}>"El perro muerde cuando el humano se mueve mal"</strong> lidera con 4,713 vistas, alcance de 3,150 y 102 likes — score 8.7/10.
           El <strong style={{ color: C.orange }}>61.1% del alcance</strong> viene de no seguidores, lo que indica alto potencial de crecimiento orgánico.
@@ -3370,11 +3383,11 @@ function ModReporte({ config = {} }) {
   const hasRealAI = config.anthropicKey && config.anthropicKey.startsWith("sk-ant-")
 
   const kpis = [
-    { label:"Seguidores",        value:"4,538",  prev:"4,490", delta:"+48",    col:C.purple, icon:"👥" },
-    { label:"Visualizaciones",   value:"26,423", prev:"18,200",delta:"+45.2%", col:C.cyan,   icon:"👁"  },
-    { label:"Interacciones",     value:"1,015",  prev:"680",   delta:"+49.3%", col:C.pink,   icon:"♥"  },
-    { label:"Alcance",           value:"5,760",  prev:"3,900", delta:"+47.7%", col:C.orange, icon:"📡" },
-    { label:"Engagement Rate",   value:"3.85%",  prev:"2.90%", delta:"+0.95pp",col:C.green,  icon:"📈" },
+    { label:"Seguidores",        value:"4,545",  prev:"4,538", delta:"+7",     col:C.purple, icon:"👥" },
+    { label:"Visualizaciones",   value:"27,255", prev:"26,423",delta:"+3.1%",  col:C.cyan,   icon:"👁"  },
+    { label:"Interacciones",     value:"437",    prev:"1,015", delta:"-57%",   col:C.pink,   icon:"♥"  },
+    { label:"Alcance",           value:"10,043", prev:"5,760", delta:"+74.4%", col:C.orange, icon:"📡" },
+    { label:"Engagement Rate",   value:"4.35%",  prev:"3.85%", delta:"+0.5pp", col:C.green,  icon:"📈" },
     { label:"Visitas al perfil", value:"355",    prev:"210",   delta:"+69%",   col:C.blue,   icon:"🔖" },
     { label:"Clics a WhatsApp",  value:"15",     prev:"8",     delta:"+87.5%", col:C.wa,     icon:"💬" },
     { label:"Posts publicados",  value:"6",      prev:"4",     delta:"+2",     col:C.sub,    icon:"📝" },
@@ -3398,7 +3411,7 @@ function ModReporte({ config = {} }) {
     if (!hasRealAI) return
     setGenerating(true)
     const prompt = `Genera un resumen ejecutivo mensual profesional para Agenda Canina (${periodo}).
-    Métricas clave: 4,538 seguidores (+48), 26,423 visualizaciones (+45.2%), 1,015 interacciones (+49.3%), engagement 3.85%, 15 clics a WhatsApp.
+    Métricas clave: 4,545 seguidores (+7), 27,255 visualizaciones totales (15,637 propias + 11,618 colaboraciones), 437 interacciones, engagement 4.35%, alcance 10,043 cuentas únicas. Período May 19 – Jun 16, 2026.
     Top post: "El perro muerde cuando el humano se mueve mal" con 4,713 vistas.
     Escribe 3 párrafos: (1) resultados generales del período, (2) hallazgos clave sobre el contenido, (3) oportunidades comerciales prioritarias. Tono profesional y accionable. Sin bullets, en prosa fluida.`
     const texto = await callClaudeAPI(prompt, config.anthropicKey)
@@ -3543,7 +3556,7 @@ function ModReporte({ config = {} }) {
             { label:"Bogotá",        val:"50.5%",col:C.purple },
             { label:"Edad 35–54",    val:"62.9%",col:C.orange },
             { label:"Colombia",      val:"83.8%",col:C.green  },
-            { label:"Engagement Rate",val:"3.85%",col:C.cyan  },
+            { label:"Engagement Rate",val:"4.35%",col:C.cyan  },
           ].map(a => (
             <div key={a.label} style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
               <span style={{ fontSize:12, color:C.sub, minWidth:110 }}>{a.label}</span>
